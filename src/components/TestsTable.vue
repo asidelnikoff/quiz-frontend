@@ -57,7 +57,7 @@ const openDeleteDialog = (id, name) => {
       modal: true
     },
     emits: {
-      onUpdate: fetchTests
+      onDelete: fetchTests
     },
     data: {
       quizId: id,
