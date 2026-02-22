@@ -18,6 +18,7 @@ const perPage = ref(20);
 const first = ref(0);
 const isLoading = ref(false);
 const searchQuery = ref(null)
+const table = ref(null)
 
 const props = defineProps(['type'])
 
@@ -49,6 +50,7 @@ const fetchTests = async (query) => {
     totalItems.value = 0;
   } finally {
     isLoading.value = false;
+    table.value.getTableRef().getVirtualScrollerRef().scrollToIndex(0);
   }
 };
 
@@ -94,7 +96,7 @@ const goToTest = (id) => {
 
 <template>
   <div class="flex flex-col gap-5">
-    <TestsTable :tests="tests" :isLoading="isLoading" :first="first" :isReadOnly="false" @fetchTests="fetchTests"
+    <TestsTable ref="table" :tests="tests" :isLoading="isLoading" :first="first" :isReadOnly="false" @fetchTests="fetchTests"
       @goToTest="goToTest" />
     <div class="flex justify-between items-center">
       <span></span>

@@ -14,6 +14,8 @@ const searchQuery = ref(null);
 const isLoading = ref(false);
 const confirm = useConfirm();
 
+const table = ref(null)
+
 const fetchQuestions = async () => {
   isLoading.value = true;
   try {
@@ -30,6 +32,7 @@ const fetchQuestions = async () => {
     totalItems.value = 0;
   } finally {
     isLoading.value = false;
+    table.value.getVirtualScrollerRef().scrollToIndex(0);
   }
 };
 
@@ -94,7 +97,7 @@ const deleteQuestion = async (id) => {
       <h1 class="font-bold text-3xl">Мои вопросы</h1>
       <div class="flex flex-col gap-5">
         <InputText v-model="searchQuery" fluid placeholder="Введите текст вопроса" />
-        <DataTable :value="questions" :loading="isLoading" scrollable scrollHeight="flex" style="max-height: 58vh;">
+        <DataTable ref="table" :value="questions" :loading="isLoading" scrollable scrollHeight="58vh" style="max-height: 58vh;" :virtualScrollerOptions="{ itemSize: 67 }">
           <template #paginatorstart>
             <span></span>
           </template>

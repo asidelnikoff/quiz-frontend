@@ -6,6 +6,13 @@ import DeleteQuizDialog from './DeleteQuizDialog.vue';
 import { formatDate } from './utils/dateFormat';
 import { watch, ref, computed } from 'vue';
 
+const table = ref(null)
+const getTableRef = () => table.value
+
+defineExpose({
+  getTableRef
+})
+
 const tests = defineModel('tests')
 const searchQuery = ref(null)
 const isLoading = defineModel('isLoading')
@@ -65,12 +72,13 @@ const openDeleteDialog = (id, name) => {
     }
   });
 };
+
 </script>
 
 <template>
   <div class="flex flex-col gap-5">
     <InputText v-model="searchQuery" fluid placeholder="Введите название теста" />
-    <DataTable :value="tests" :loading="isLoading" scrollable scrollHeight="flex" style="max-height: 58vh;">
+    <DataTable ref="table" :value="tests" :loading="isLoading" scrollable scrollHeight="58vh" style="max-height: 58vh;" :virtualScrollerOptions="{ itemSize: 67 }">
       <template #empty> Нет тестов для отображения </template>
       <Column header="#">
         <template #body="slotProps">
