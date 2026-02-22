@@ -29,7 +29,7 @@ const fetchQuestions = async () => {
       limit: perPage.value,
       page: currentPage.value,
     });
-    questions.value = response.data.items || [];
+    questions.value = response.data.items?.map((q) => ({ id: q.id, question: q.question })) || [];
     totalItems.value = response.data.count || 0;
     await loadSelectedQuestions();
   } catch (error) {
@@ -44,7 +44,7 @@ const fetchQuestions = async () => {
 const loadSelectedQuestions = async () => {
   const testId = route.params.id;
   if (testId) {
-    const loadedTest = (await quizService.getQuizQuestions(testId, false)
+    const loadedTest = (await quizService.getQuizForEdit(testId)
       .catch(() => { data: null })).data;
     if (loadedTest && store.getSelectedQuestions.length === 0) {
       console.log('setting selected questions');
@@ -52,7 +52,6 @@ const loadSelectedQuestions = async () => {
     }
   }
   selectedQuestions.value = store.getSelectedQuestions;
-  console.log(selectedQuestions.value)
 };
 
 // Initial fetch

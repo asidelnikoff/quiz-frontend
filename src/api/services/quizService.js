@@ -63,15 +63,6 @@ const quizService = {
         return response;
     },
 
-    async getQuizQuestions(quizId, shuffleQuestions, invite) {
-        let path = apiPrefix + `/quiz/${quizId}/questions?shuffleQuestions=${shuffleQuestions}`;
-        if (invite) {
-            path += `&invite=${invite}`;
-        }
-        const response = await api.get(path);
-        return response;
-    },
-
     async getQuizForEdit(quizId) {
         const response = await api.get(apiPrefix + `/quiz/${quizId}/for-edit`, { withCredentials: true });
         return response;

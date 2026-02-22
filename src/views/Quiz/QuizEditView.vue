@@ -37,6 +37,7 @@ onMounted(async () => {
       questions.value = [...store.getSelectedQuestions];
     }
     store.setSelectedQuestions(questions.value);
+    console.log(loadedTest.name)
     store.setTestName(loadedTest.name);
     store.setTakeSettings(loadedTest.settings)
   } else {
@@ -45,14 +46,13 @@ onMounted(async () => {
 });
 
 watch(() => store.getCurentTestName, (newTestName) => {
-  if (testName != newTestName) {
+  if (testName.value != newTestName) {
     testName.value = newTestName;
   }
-})
+}, { immediate: true })
 
 watch(() => store.getSelectedQuestions, () => {
   if (store.getSelectedQuestions.length > 0) {
-    testName.value = store.getCurentTestName;
     questions.value = [...questions.value, ...store.getSelectedQuestions.filter(q => !questions.value.some(qq => qq.id === q.id))];
   }
 }, { immediate: true });

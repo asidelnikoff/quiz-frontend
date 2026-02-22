@@ -6,8 +6,11 @@ import quizService from '@/api/services/quizService';
 import UploadTestsDialog from './UploadTestsDialog.vue';
 import { showSidebar } from './Sidepanel/state';
 import TestsTable from './TestsTable.vue';
+import CreateQuizDialog from './CreateQuizDialog.vue';
+import { useDialog } from 'primevue';
 
 const router = useRouter();
+const dialog = useDialog();
 const tests = ref([]);
 const totalItems = ref(0);
 const currentPage = computed(() => first.value / perPage.value);
@@ -64,9 +67,25 @@ watch([tests, totalItems], ([newTests, newTotalItems]) => {
   }
 });
 
-const goToCreate = () => {
-  router.push('/create-test');
-};
+const toCreateQuiz = () => {
+  console.log('creating quiz')
+  dialog.open(CreateQuizDialog, {
+    props: {
+      header: 'Создание теста',
+      style: {
+        width: '50vw',
+      },
+      modal: true
+    },
+    emits: {
+      onQuizCreate: toEditQuiz
+    }
+  });
+}
+
+const toEditQuiz = (id) => {
+  router.push(`edit-test/${id}`)
+}
 
 const goToTest = (id) => {
   router.push(`/test/${id.value}`);
@@ -83,7 +102,7 @@ const goToTest = (id) => {
         :rowsPerPageOptions="[20, 40, 60, 100]" />
       <div v-if="isOwned()" class="flex flex-row gap-4">
         <UploadTestsDialog @testUpload="fetchTests({ not_changed: true })" />
-        <Button @click="goToCreate" variant="outlined" label="Создать тест" icon="pi pi-plus-circle"
+        <Button @click="toCreateQuiz" variant="outlined" label="Создать тест" icon="pi pi-plus-circle"
           iconPos="right"></Button>
       </div>
       <span v-else></span>

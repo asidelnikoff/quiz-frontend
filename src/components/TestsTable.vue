@@ -22,7 +22,6 @@ const isSelectingMode = computed(() => mode.value === 'select')
 
 const goToTest = (id) => {
   emit('goToTest', { value: id })
-  // router.push(`/test/${id}`);
 };
 
 const editTest = (id) => {
