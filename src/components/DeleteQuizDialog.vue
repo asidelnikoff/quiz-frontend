@@ -30,28 +30,32 @@ setInitialValues();
 
 const deleteQuiz = () => {
     isLoading.value = true
-    quizService.deleteQuiz(quizId.value, deleteQuestions.value)
-        .then(response => {
-            if (response.status === 200) {
-                toast.add({ severity: 'success', summary: 'Тест удален', life: 3000 });
-                console.log('emitting')
-                emit('delete');
-            }
-        })
-        .catch(error => {
-            let message = '';
-            if (error.response.data.error_description) {
-                message = error.response.data.error_description
-            }
-            else {
-                message = 'Непредвиденная ошибка. Попробуйте снова'
-            }
-            toast.add({ severity: 'error', summary: 'Ошибка удаления', detail: message, life: 3000 });
-        })
-        .finally(() => {
-            isLoading.value = false
-            closeDialog()
-        })
+    setTimeout(() => {
+        isLoading.value = false
+        closeDialog()
+    }, 30000)
+    // quizService.deleteQuiz(quizId.value, deleteQuestions.value)
+    //     .then(response => {
+    //         if (response.status === 200) {
+    //             toast.add({ severity: 'success', summary: 'Тест удален', life: 3000 });
+    //             console.log('emitting')
+    //             emit('delete');
+    //         }
+    //     })
+    //     .catch(error => {
+    //         let message = '';
+    //         if (error.response.data.error_description) {
+    //             message = error.response.data.error_description
+    //         }
+    //         else {
+    //             message = 'Непредвиденная ошибка. Попробуйте снова'
+    //         }
+    //         toast.add({ severity: 'error', summary: 'Ошибка удаления', detail: message, life: 3000 });
+    //     })
+    //     .finally(() => {
+    //         isLoading.value = false
+    //         closeDialog()
+    //     })
 }
 
 const closeDialog = () => {
@@ -70,6 +74,8 @@ const closeDialog = () => {
             <Button :disabled="isLoading" label="Отмена" variant="outlined" severity="secondary" @click="closeDialog"></Button>
             <Button :disabled="isLoading" label="Удалить" icon="pi pi-trash" icon-pos="right" @click="deleteQuiz"></Button>
         </div>
+    </div>
+    <div v-if="isLoading" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
     </div>
     <div v-if="isLoading" class="center">
         <ProgressSpinner style="height: 10rem;" />
