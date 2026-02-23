@@ -8,8 +8,12 @@ const selectedQuestion = defineModel('selectedQuestion')
 const list = ref(null)
 
 watch(selectedQuestion, () => {
-  console.log(props.currentQuestionIndex)
-  list.value.getVirtualScrollerRef().scrollToIndex(props.currentQuestionIndex);
+  var range = list.value.getVirtualScrollerRef().getRenderedRange()
+  console.log(list.value.getVirtualScrollerRef().getRenderedRange())
+  if (range.viewport.last <= (props.currentQuestionIndex + 1) || range.viewport.first >= props.currentQuestionIndex) {
+    list.value.getVirtualScrollerRef().scrollToIndex(props.currentQuestionIndex);
+  }
+  console.log(list.value.getVirtualScrollerRef().getRenderedRange())
 })
 
 const prevQuestion = () => {
@@ -31,9 +35,14 @@ const onRowUnselect = (event) => {
 
 <template>
   <div class="flex flex-col items-center w-full overflow-y-auto">
-      <DataTable ref="list" v-model:selection="selectedQuestion" :value="props.questions" selectionMode="single" 
+      <DataTable ref="list" 
+      v-model:selection="selectedQuestion" 
+      style="max-height: 30vh;" 
+      :value="props.questions" selectionMode="single" 
       class="w-full"
-      :showHeaders="false" scrollable scrollHeight="30vh" :virtualScrollerOptions="{ itemSize: 49 }"
+      :showHeaders="false" 
+      :showGridlines="true"
+      scrollable scrollHeight="30vh" :virtualScrollerOptions="{ itemSize: 49 }"
       @rowUnselect="onRowUnselect">
         <Column>
           <template #body="slotProps">
