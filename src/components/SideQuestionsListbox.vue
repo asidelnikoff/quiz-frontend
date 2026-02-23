@@ -1,8 +1,16 @@
 <script setup>
-import { Listbox, Button } from 'primevue';
+import { Listbox, Button, DataTable, Column, Panel, Card } from 'primevue';
+import { ref, watch } from 'vue';
 
 const props = defineProps(['currentQuestionIndex', 'questions'])
 const selectedQuestion = defineModel('selectedQuestion')
+
+const list = ref(null)
+
+watch(selectedQuestion, () => {
+  console.log(props.currentQuestionIndex)
+  list.value.getVirtualScrollerRef().scrollToIndex(props.currentQuestionIndex);
+})
 
 const prevQuestion = () => {
   if (props.currentQuestionIndex > 0) {
@@ -15,23 +23,32 @@ const nextQuestion = () => {
     selectedQuestion.value = props.questions[props.currentQuestionIndex + 1];
   }
 };
+
+const onRowUnselect = (event) => {
+  selectedQuestion.value = event.data
+}
 </script>
 
 <template>
   <div class="flex flex-col items-center w-full overflow-y-auto">
-    <Listbox v-model="selectedQuestion" :options="props.questions" optionLabel="index" class="w-full">
-      <template #option="slotProps">
-        <div class="flex flex-wrap items-center gap-4 w-full justify-between">
-          <p>Вопрос {{ slotProps.index + 1 }}</p>
-          <span v-if="slotProps.option.questionData.is_answered">
-            <i v-if="slotProps.option.questionData.is_correct === true" class="pi pi-check-circle" alt="Correct" />
-            <i v-else-if="slotProps.option.questionData.is_correct === false" class="pi pi-times-circle"
-              alt="Incorrect" />
-            <i v-else class="pi pi-question-circle" alt="Answered" />
-          </span>
-        </div>
-      </template>
-    </Listbox>
+      <DataTable ref="list" v-model:selection="selectedQuestion" :value="props.questions" selectionMode="single" 
+      class="w-full"
+      :showHeaders="false" scrollable scrollHeight="30vh" :virtualScrollerOptions="{ itemSize: 49 }"
+      @rowUnselect="onRowUnselect">
+        <Column>
+          <template #body="slotProps">
+            <div class="flex flex-wrap items-center gap-4 w-full justify-between">
+              <p>Вопрос {{ slotProps.index + 1 }}</p>
+              <span v-if="slotProps.data.questionData.is_answered">
+                <i v-if="slotProps.data.questionData.is_correct === true" class="pi pi-check-circle" alt="Correct" />
+                <i v-else-if="slotProps.data.questionData.is_correct === false" class="pi pi-times-circle"
+                  alt="Incorrect" />
+                <i v-else class="pi pi-question-circle" alt="Answered" />
+              </span>
+            </div>
+          </template>
+        </Column>
+      </DataTable>
     <div class="flex flex-col w-full gap-4 py-5">
       <Button @click="prevQuestion" :disabled="props.currentQuestionIndex === 0" variant="outlined"
         label="Предыдущий вопрос" icon="pi pi-chevron-left"></Button>

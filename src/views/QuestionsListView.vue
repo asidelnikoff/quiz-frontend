@@ -102,7 +102,6 @@ const deleteQuestion = async (id) => {
             <span></span>
           </template>
           <template #paginatorend>
-
           </template>
           <template #empty> Нет вопросов для отображения </template>
           <Column header="#">
