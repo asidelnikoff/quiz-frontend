@@ -1,5 +1,5 @@
 <script setup>
-import { Button, Dialog, FileUpload } from 'primevue';
+import { Button, Dialog, FileUpload, ProgressSpinner } from 'primevue';
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import quizService from '@/api/services/quizService';
@@ -8,6 +8,7 @@ const toast = useToast();
 
 const fileupload = ref();
 const isVisible = ref(false);
+const isLoading = ref(false)
 const emit = defineEmits(['testUpload', 'testUploadFailed']);
 
 const openDialog = () => {
@@ -24,6 +25,7 @@ const uploadFile = () => {
 
 function onUploadFile(event) {
     let file = event.files[0];
+    isLoading.value = true
     quizService.uploadQuiz(file)
         .then(function () {
             fileupload.value.clear();
@@ -34,12 +36,16 @@ function onUploadFile(event) {
         })
         .catch(function () {
             toast.add({ severity: 'error', summary: 'Ошибка', detail: 'При загрузке что-то пошло не так. Попробуйте снова', group: 'br', life: 3000 });
+        })
+        .finally(() => {
+            isLoading.value = false
+            isVisible.value = false
         });
 }
 </script>
 
 <template>
-    <Dialog v-model:visible="isVisible" modal header="Загрузка теста">
+    <Dialog v-model:visible="isVisible" modal header="Загрузка теста" :closeOnEscape="!isLoading">
         <FileUpload class="flex flex-col items-center" :fileLimit=1 :multiple="false" customUpload
             @uploader="onUploadFile" ref="fileupload">
             <template #header="{ chooseCallback }">
@@ -71,6 +77,11 @@ function onUploadFile(event) {
         <div class="flex justify-end gap-4 pt-5">
             <Button @click="closeDialog" variant="outlined">Отмена</Button>
             <Button @click="uploadFile" label="Загрузить" icon="pi pi-check" iconPos="right"></Button>
+        </div>
+        <div v-if="isLoading" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
+        </div>
+        <div v-if="isLoading" class="center">
+            <ProgressSpinner style="height: 10rem;" />
         </div>
     </Dialog>
     <Button variant="outlined" @click="openDialog" label="Загрузить из файла" icon="pi pi-upload"
