@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Button, ProgressBar } from 'primevue';
 import quizService from '@/api/services/quizService';
 import Question from '@/components/Question.vue';
@@ -9,6 +9,7 @@ import { hideSidebar } from '@/components/Sidepanel/state';
 import { useSessionStore } from '@/stores/session';
 
 const router = useRouter();
+const route = useRoute()
 const store = useSessionStore();
 
 var testName = ref('');
@@ -18,12 +19,18 @@ const currentQuestionIndex = computed(() => selectedQuestion.value ? selectedQue
 const selectedAnswers = ref([]);
 const isLoading = ref(false);
 
-hideSidebar();
+if (!route.query.id) {
+  hideSidebar();
+}
 
 onMounted(async () => {
   isLoading.value = true;
   try {
-    var result = await quizService.getDetailedQuizSessionResults(store.getSessionId())
+    let sessionId = route.query.id;
+    if (!sessionId) {
+      sessionId = store.getSessionId()
+    }
+    var result = await quizService.getDetailedQuizSessionResults(sessionId)
     testName = result.data.quiz_name
     for (let i = 0; i < result.data.questions.length; i++) {
       questions.value.push({ index: i, questionData: result.data.questions[i] })

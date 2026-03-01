@@ -3,6 +3,7 @@ import { watch, ref, computed } from 'vue';
 import { InputText, DataTable, Paginator, Column, Button } from 'primevue';
 import quizService from '@/api/services/quizService';
 import { formatDate, formatFromMillisecondsTime } from '@/components/utils/dateFormat';
+import { useRouter } from 'vue-router';
 
 const questions = ref([]);
 const totalItems = ref(0);
@@ -12,6 +13,7 @@ const first = ref(0);
 const searchQuery = ref(null);
 const isLoading = ref(false);
 const isDescSort = ref(true);
+const router = useRouter()
 
 const fetchResults = async () => {
     isLoading.value = true;
@@ -58,6 +60,10 @@ const toggleSortDirection = () => {
     isDescSort.value = !isDescSort.value;
     fetchResults();
 }
+
+const goToDetailedResults = async (sessionId) => {
+  router.push({ name: 'detailed-results', query: { id: sessionId } });
+}
 </script>
 
 <template>
@@ -98,6 +104,12 @@ const toggleSortDirection = () => {
                         <template #body="slotProps">
                             <b>{{ slotProps.data.correct_answers }} / {{ slotProps.data.total_questions }}</b> ({{
                                 (slotProps.data.result).toFixed(2) }}%)
+                        </template>
+                    </Column>
+                    <Column field="session_id" class="!text-end">
+                        <template #body="slotProps">
+                            <Button v-if="slotProps.data.is_attempt_view_enabled" label="Подробнее" class="text-end" variant="outlined"
+                                icon="pi pi-arrow-right" icon-pos="right" @click="goToDetailedResults(slotProps.data.session_id)"></Button>
                         </template>
                     </Column>
                 </DataTable>

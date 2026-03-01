@@ -10,7 +10,7 @@ const list = ref(null)
 watch(selectedQuestion, () => {
   var range = list.value.getVirtualScrollerRef().getRenderedRange()
   console.log(list.value.getVirtualScrollerRef().getRenderedRange())
-  if (range.viewport.last <= (props.currentQuestionIndex + 1) || range.viewport.first >= props.currentQuestionIndex) {
+  if (range.viewport.last < (props.currentQuestionIndex + 1) || range.viewport.first >= props.currentQuestionIndex) {
     list.value.getVirtualScrollerRef().scrollToIndex(props.currentQuestionIndex);
   }
   console.log(list.value.getVirtualScrollerRef().getRenderedRange())
@@ -34,7 +34,7 @@ const onRowUnselect = (event) => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center w-full overflow-y-auto">
+  <div class="flex flex-col items-center overflow-y-auto" >
     <DataTable ref="list" v-model:selection="selectedQuestion" style="max-height: 30vh;" :value="props.questions"
       selectionMode="single" class="w-full" :showHeaders="false" :showGridlines="true" scrollable scrollHeight="30vh"
       :virtualScrollerOptions="{ itemSize: 49 }" @rowUnselect="onRowUnselect">

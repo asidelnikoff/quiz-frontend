@@ -7,6 +7,7 @@ import { useSessionStore } from '@/stores/session';
 import { hideSidebar } from '@/components/Sidepanel/state';
 import Question from '@/components/Question.vue';
 import SideQuestionsListbox from '@/components/SideQuestionsListbox.vue';
+import { useToast } from 'primevue';
 
 // State
 var testName = ref('');
@@ -18,6 +19,7 @@ const isLoading = ref(false);
 const router = useRouter();
 const store = useSessionStore();
 const confirm = useConfirm();
+const toast = useToast()
 
 hideSidebar();
 
@@ -30,7 +32,12 @@ onMounted(async () => {
     let test = store.getTest;
     test = store.getTest;
     if (store.getSessionId()) {
-      session.value = (await quizService.getSession(store.getSessionId())).data;
+      session.value = (await quizService.getSession(store.getSessionId()).catch(error => {
+        if (error?.response?.data?.error_code === 'session_not_exists') {
+          toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Сессия завершена', life: 3000 })
+          router.back();
+        }
+      })).data;
     }
     else {
       const testId = test.id;
