@@ -34,7 +34,7 @@ const onRowUnselect = (event) => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center overflow-y-auto" >
+  <div class="flex flex-col items-center overflow-y-auto w-1/3" >
     <DataTable ref="list" v-model:selection="selectedQuestion" style="max-height: 30vh;" :value="props.questions"
       selectionMode="single" class="w-full" :showHeaders="false" :showGridlines="true" scrollable scrollHeight="30vh"
       :virtualScrollerOptions="{ itemSize: 49 }" @rowUnselect="onRowUnselect">

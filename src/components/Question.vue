@@ -59,7 +59,7 @@ watch(selectedAnswers, () => {
 </script>
 
 <template>
-  <div class="flex flex-col w-full" style="min-width: 40vw;">
+  <div class="flex flex-col w-full">
     <Card>
       <template #content>
         <div class="flex justify-between">

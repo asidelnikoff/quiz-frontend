@@ -158,7 +158,7 @@ const confirmCompleteTest = () => {
 
       <div v-if="isLoading" class="text-center">Загрузка теста...</div>
       <div v-else class="flex flex-col justify-between md:flex-row gap-6">
-        <div>
+        <div class="w-full">
           <Question v-model:selectedAnswers="selectedAnswers" v-model:currentQuestion="currentQuestion"
             :canAnswer="true" />
           <div class="flex justify-end items-center">
