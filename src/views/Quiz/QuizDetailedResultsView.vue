@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Button, ProgressBar } from 'primevue';
+import { Button, ProgressBar, ProgressSpinner } from 'primevue';
 import quizService from '@/api/services/quizService';
 import Question from '@/components/Question.vue';
 import SideQuestionsListbox from '@/components/SideQuestionsListbox.vue';
@@ -62,23 +62,25 @@ const completeTest = () => {
 
 <template>
   <main>
-    <div>
+    <div v-if="isLoading" class="center">
+        <ProgressSpinner style="height: 10rem;" />
+    </div>
+    <div v-else class="flex flex-col gap-5">
       <div class="flex justify-between items-center">
-        <h1 class="font-bold text-3xl py-2">{{ testName }}</h1>
+        <h1 class="font-bold text-3xl">{{ testName }}</h1>
         <Button @click="completeTest" variant="outlined" label="Вернуться" icon="pi pi-arrow-left"></Button>
       </div>
 
-      <div v-if="!isLoading" class="mb-6 py-5">
+      <div>
         <ProgressBar :value="progress" style="height: 0.5rem;">{{}}</ProgressBar>
         <p class="text-right">
           {{ currentQuestionIndex + 1 }}/{{ questions.length }}
         </p>
       </div>
 
-      <div v-if="isLoading" class="text-center">Загрузка теста...</div>
-      <div v-else class="flex flex-col justify-between md:flex-row gap-6">
-        <Question v-model:currentQuestion="currentQuestion" v-model:selectedAnswers="selectedAnswers" />
-        <SideQuestionsListbox v-model:selectedQuestion="selectedQuestion" :currentQuestionIndex="currentQuestionIndex"
+      <div class="flex flex-col justify-between md:flex-row gap-6">
+        <Question class="w-full" v-model:currentQuestion="currentQuestion" v-model:selectedAnswers="selectedAnswers" />
+        <SideQuestionsListbox class="w-full md:w-1/3" v-model:selectedQuestion="selectedQuestion" :currentQuestionIndex="currentQuestionIndex"
           :questions="questions" />
       </div>
     </div>

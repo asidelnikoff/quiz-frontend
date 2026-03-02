@@ -59,13 +59,13 @@ watch(selectedAnswers, () => {
 </script>
 
 <template>
-  <div class="flex flex-col w-full">
+  <div class="flex flex-col">
     <Card>
       <template #content>
         <div class="flex justify-between">
           <div class="flex flex-wrap items-center p-3 gap-5">
             <i class="pi pi-question-circle" />
-            <p class="text-lg">{{ currentQuestion?.question || 'Загрузка...' }}</p>
+            <p class="text-lg">{{ currentQuestion?.question }}</p>
           </div>
           <span v-if="currentQuestion?.is_answered === true">
             <i v-if="currentQuestion?.is_correct === true" class="pi pi-check-circle" alt="Correct" />

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { Button, ProgressBar, useConfirm } from 'primevue';
+import { Button, ProgressBar, ProgressSpinner, useConfirm } from 'primevue';
 import quizService from '@/api/services/quizService';
 import { useSessionStore } from '@/stores/session';
 import { hideSidebar } from '@/components/Sidepanel/state';
@@ -143,21 +143,23 @@ const confirmCompleteTest = () => {
 
 <template>
   <main>
-    <div>
+    <div v-if="isLoading" class="center">
+        <ProgressSpinner style="height: 10rem;" />
+    </div>
+    <div v-else class="flex flex-col gap-5">
       <div class="flex justify-between items-center">
         <h1 class="font-bold text-3xl py-2">{{ testName }}</h1>
         <Button @click="completeTest" variant="outlined" label="Завершить" icon="pi pi-times" iconPos="right"></Button>
       </div>
 
-      <div v-if="!isLoading" class="mb-6 py-5">
+      <div>
         <ProgressBar :value="progress" style="height: 0.5rem;">{{}}</ProgressBar>
         <p class="text-right">
           {{ currentQuestionIndex + 1 }}/{{ questions.length }}
         </p>
       </div>
 
-      <div v-if="isLoading" class="text-center">Загрузка теста...</div>
-      <div v-else class="flex flex-col justify-between md:flex-row gap-6">
+      <div class="flex flex-col justify-between md:flex-row gap-6">
         <div class="w-full">
           <Question v-model:selectedAnswers="selectedAnswers" v-model:currentQuestion="currentQuestion"
             :canAnswer="true" />
@@ -166,7 +168,7 @@ const confirmCompleteTest = () => {
               icon="pi pi-check" iconPos="right"></Button>
           </div>
         </div>
-        <SideQuestionsListbox v-model:selectedQuestion="selectedQuestion" :currentQuestionIndex="currentQuestionIndex"
+        <SideQuestionsListbox class="w-full md:w-1/3" v-model:selectedQuestion="selectedQuestion" :currentQuestionIndex="currentQuestionIndex"
           :questions="questions" />
       </div>
     </div>
