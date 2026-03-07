@@ -60,6 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('access_type')
     return response
   }
+
   async function groupLogin(groupId) {
     const response = await groupService.authToGroup(groupId)
     if (response.status === 200) {
@@ -80,6 +81,12 @@ export const useAuthStore = defineStore('auth', () => {
 
     return response
   }
+
+  async function refresh() {
+    let response = await authService.refresh()
+    const { access_token } = response.data;
+    localStorage.setItem('token', access_token);
+  }
   //
   // Exported members
   //
@@ -94,6 +101,7 @@ export const useAuthStore = defineStore('auth', () => {
     tempLogin,
     logout,
     groupLogin,
-    groupLogout
+    groupLogout,
+    refresh
   }
 })

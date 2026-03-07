@@ -5,10 +5,13 @@ import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
 import { Form } from '@primevue/forms';
 import { useToast } from 'primevue/usetoast';
+import { useAuthStore } from '@/stores/auth';
 import authService from '@/api/services/authService';
 import ResetOnChange from '@/components/ResetOnChange.vue';
 import { useRouter } from 'vue-router';
+import { formatDate } from '@/components/utils/dateFormat';
 
+const authStore = useAuthStore()
 const toast = useToast();
 const confirm = useConfirm();
 const router = useRouter();
@@ -70,19 +73,33 @@ const onFormSubmit = async ({ values, valid }) => {
     }
     try {
         isLoading.value = true;
-        await authService.updateUser({
-            login: values.login,
-            firstname: values.firstname,
-            lastname: values.lastname,
-            patronymic: values.patronymic.length > 0 ? values.patronymic : null,
-            password: values.newPassword
-        })
+        let newPatronymic = values.patronymic?.trim().length > 0 ? values.patronymic : null
+        let updated = {
+            login: values.login === initialValues.value.login ? null : values.login,
+            firstname: values.firstname === initialValues.value.firstname ? null : values.firstname,
+            lastname: values.lastname === initialValues.value.lastname ? null : values.lastname,
+            patronymic: newPatronymic === initialValues.value.patronymic ? null : newPatronymic,
+            password: values.newPassword ?? null
+        };
+        if (updated.login === null && updated.firstname === null && updated.lastname === null && newPatronymic === initialValues.value.patronymic && updated.password === null) {
+            return;
+        }
+
+        await authService.updateUser(updated)
+        if (updated.login !== null) {
+            await authStore.refresh()
+        }
+
         toast.add({ severity: 'success', summary: 'Данные успешно обновлены', life: 3000 });
     }
     catch (error) {
         let message = '';
         console.log(error);
-        if (error.status < 500) {
+        if (error.response?.data?.error_code === 'unable_to_change_login') {
+            message = 'Невозможно сменить логин'
+            message += '\nСледующая смена логина возможна: ' + `${formatDate(error.response.data.details)}`
+        }
+        else if (error.status < 500) {
             message = error.response.data.error_description
         }
         else {
@@ -147,7 +164,7 @@ const deleteAccount = async () => {
                     </div>
                     <div class="flex flex-row gap-10">
                         <div class="flex flex-col w-full gap-1">
-                            <InputText name="login" placeholder="Логин" fluid readonly="true" />
+                            <InputText name="login" placeholder="Логин" fluid />
                             <Message v-if="$form.login?.invalid" severity="error" size="small" variant="simple">{{
                                 $form.login.error?.message }}</Message>
                         </div>

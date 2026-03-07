@@ -3,7 +3,7 @@ import api from "..";
 const apiPrefix = '/users-ms/api/v1';
 const userService = {
     async getUserInfo(login) {
-        const response = await api.get(apiPrefix + `/user/${login}`, { withCredentials: true });
+        const response = await api.get(apiPrefix + `/user?login=${login}`, { withCredentials: true });
         return response;
     },
 
