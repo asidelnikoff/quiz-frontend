@@ -138,26 +138,26 @@ const addToUpdatePermissions = () => {
     })
 }
 
-const toRevokePermissionsList = (login) => {
-    if (!toGrantPermissions.value.find(p => p.login === login)) {
-        toRevokePermissions.value.push({ login: login });
+const toRevokePermissionsList = (id) => {
+    if (!toGrantPermissions.value.find(p => p.id === id)) {
+        toRevokePermissions.value.push({ id: id });
     }
     else {
-        toGrantPermissions.value = toGrantPermissions.value.filter(p => p.login !== login);
+        toGrantPermissions.value = toGrantPermissions.value.filter(p => p.id !== id);
     }
 
-    permissions.value = permissions.value.filter(p => p.login !== login);
+    permissions.value = permissions.value.filter(p => p.id !== id);
 }
 
 const onFormSubmit = async (e) => {
     try {
         await userService.getUserInfo(e.values.login);
         let newPermission = {
-            login: e.values.login,
+            id: e.values.id,
             permission_level: 'viewer'
         }
 
-        if (permissions.value.filter(p => p.login === newPermission.login).length > 0) {
+        if (permissions.value.filter(p => p.id === newPermission.id).length > 0) {
             throw new Error("Пользователь уже добавлен в список");
         }
 
@@ -230,7 +230,7 @@ const handleCopy = (content) => {
             <DataTable :value="permissions" scrollable scrollHeight="flex" style="max-height: 25vh;"
                 :show-headers="false">
                 <template #empty> Нет пользователей </template>
-                <Column field="login"></Column>
+                <Column field="id"></Column>
                 <Column field="permission_level">
                     <template #body="slotProps">
                         <label v-if="slotProps.data.permission_level === 'owner'">Владелец</label>
@@ -238,7 +238,7 @@ const handleCopy = (content) => {
                             <Select :options="levels" option-value="level" option-label="description" fluid
                                 v-model="slotProps.data.permission_level"></Select>
                             <Button variant="text" icon="pi pi-times"
-                                @click="toRevokePermissionsList(slotProps.data.login)"></Button>
+                                @click="toRevokePermissionsList(slotProps.data.id)"></Button>
                         </div>
                     </template>
                 </Column>

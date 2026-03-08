@@ -55,7 +55,14 @@ const groupService = {
         const response = await api.post(quizApiPrefix + `/group/${groupId}/update-quiz`, params, { withCredentials: true });
         return response;
     },
-
+    async updateGroupDefaultSettings(groupId, params) {
+        const response = await api.post(quizApiPrefix + `/group/${groupId}/quiz/default-settings`, params, { withCredentials: true });
+        return response;
+    },
+    async getGroupDefaultSettings(groupId) {
+        const response = await api.get(quizApiPrefix + `/group/${groupId}/quiz/default-settings`, { withCredentials: true });
+        return response;
+    },
     async getGroupQuizTakeSettings(groupId, quizId) {
         const response = await api.get(quizApiPrefix + `/group/${groupId}/quiz/${quizId}/settings`, { withCredentials: true });
         return response;

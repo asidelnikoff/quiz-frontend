@@ -163,11 +163,25 @@ const onBlur = () => {
     showError.value = !groupName.value?.trim(); // Показать ошибку, если поле пустое после потери фокуса
 };
 
+const openDefaultSettingsDialog = () => {
+    isTestsLoading.value = true
+    groupService.getGroupDefaultSettings(groupId).then(response => {
+        openTakeSettingsDialog1(response.data, null)
+        isTestsLoading.value = false
+    })
+}
+
 const openTakeSettingsDialog = (id) => {
     isTestsLoading.value = true
     groupService.getGroupQuizTakeSettings(groupId, id.value).then(response => {
-        console.log(response.data)
-        testStore.setTakeSettings(response.data)
+        openTakeSettingsDialog1(response.data, id.value)
+        isTestsLoading.value = false
+    })
+}
+
+const openTakeSettingsDialog1 = (settings, quizId) => {
+    console.log(settings)
+        testStore.setTakeSettings(settings)
         dialog.open(TakeQuizSettingsDialog, {
             props: {
                 header: 'Настройка прохождения',
@@ -177,12 +191,10 @@ const openTakeSettingsDialog = (id) => {
                 modal: true,
             },
             data: {
-                quizId: id.value,
+                quizId: quizId,
                 groupId: groupId
             }
-        });
-        isTestsLoading.value = false
-    })
+    });
 }
 
 const onRoleChange = (login, newRole) => {
@@ -348,8 +360,12 @@ const deleteGroup = () => {
             <div class="flex flex-col gap-5">
                 <div class="flex flex-row justify-between w-full">
                     <h3><b>Тесты группы</b></h3>
-                    <Button v-if="isQuizListEditingEnabled" label="Добавить тесты" variant="outlined"
-                        icon="pi pi-plus-circle" iconPos="right" @click="addTest"></Button>
+                    <div v-if="isQuizListEditingEnabled" class="flex flex-row gap-5">
+                        <Button label="Настроить прохождение" icon="pi pi-objects-column" variant="outlined" iconPos="right"
+                            @click="openDefaultSettingsDialog"></Button>
+                        <Button label="Добавить тесты" variant="outlined"
+                            icon="pi pi-plus-circle" iconPos="right" @click="addTest"></Button>
+                    </div>
                 </div>
                 <TestsTable :tests="tests" :isLoading="isTestsLoading" :first="first" :isReadOnly="true"
                     @fetchTests="fetchTests" @goToTest="goToTest" @editTakeTestSettings="openTakeSettingsDialog"

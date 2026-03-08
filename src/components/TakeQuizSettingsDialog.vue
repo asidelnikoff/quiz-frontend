@@ -64,6 +64,9 @@ const save = () => {
             })
         }
     }
+    else if (dialogRef.value.data.groupId) {
+        groupService.updateGroupDefaultSettings(dialogRef.value.data.groupId, testStore.getTakeSettings)
+    }
     close()
 }
 </script>
