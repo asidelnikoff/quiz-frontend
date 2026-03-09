@@ -20,6 +20,11 @@ const userService = {
     async deleteUser() {
         const response = await api.delete(apiPrefix + '/user/delete', { withCredentials: true });
         return response;
+    },
+
+    async getUsersInfos(params) {
+        const response = await api.post(apiPrefix + '/users-list', params, { withCredentials: true });
+        return response;
     }
 }
 

@@ -19,6 +19,10 @@ export const useAuthStore = defineStore('auth', () => {
     return user?.value?.login || ''
   })
 
+  const getId = computed(() => {
+    return user?.value?.id
+  })
+
   const getToken = () => localStorage.getItem('token') || null
   //
   // User login/logout
@@ -94,6 +98,7 @@ export const useAuthStore = defineStore('auth', () => {
     user, 
 
     getLogin,
+    getId,
     getToken,
     isLimited,
 

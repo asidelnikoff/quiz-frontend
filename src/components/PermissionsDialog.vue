@@ -51,8 +51,14 @@ const fetchPermissions = async () => {
         else {
             let perms = dialogRef.value.data.quizId
                 ? (await quizService.getPermissionsList(dialogRef.value.data.quizId)).data
-                : [{ login: authStore.getLogin, permission_level: 'owner' }];
-
+                : [{ id: authStore.getId, permission_level: 'owner' }];
+            let usersInfos = (await userService.getUsersInfos(perms.map(c => c.id))).data
+            perms = perms.map(c => {
+                var curr = usersInfos.filter(a => a.id === c.id)[0]
+                curr.permission_level = c.permission_level
+                return curr
+            })
+            console.log(perms)
             store.setInitialPermissions(perms);
             permissions.value = perms;
         }
@@ -96,12 +102,22 @@ const savePermissions = async () => {
         let list = [];
         let toGrantPermissions = store.getToGrantPermissions;
         if (toGrantPermissions.length > 0) {
-            list.push(quizService.grantPermissions(quizId, toGrantPermissions));
+            list.push(quizService.grantPermissions(quizId, toGrantPermissions.map(a => {
+                return {
+                    id: a.id,
+                    permission_level: a.permission_level
+                }
+            })));
         }
 
         let toRevokePermissions = store.getToRevokePermissions;
         if (toRevokePermissions.length > 0) {
-            list.push(quizService.revokePermissions(quizId, toRevokePermissions));
+            list.push(quizService.revokePermissions(quizId, toRevokePermissions.map(a => {
+                return {
+                    id: a.id,
+                    permission_level: a.permission_level
+                }
+            })));
         }
 
         let visibility = store.getVisibility !== store.getInitialVisibility ? store.getVisibility : null;
@@ -125,9 +141,9 @@ const savePermissions = async () => {
 const addToUpdatePermissions = () => {
     let initialPermissions = store.getInitialPermissions;
     initialPermissions.forEach((value, index) => {
-        let currentValue = permissions.value.find(p => p.login === value.login);
+        let currentValue = permissions.value.find(p => p.id === value.id);
         if (currentValue && value.permission_level !== currentValue.permission_level) {
-            let toGrant = toGrantPermissions.value.find(p => p.login === currentValue.login);
+            let toGrant = toGrantPermissions.value.find(p => p.id === currentValue.id);
             if (!toGrant) {
                 toGrantPermissions.value.push(currentValue);
             }
@@ -151,18 +167,16 @@ const toRevokePermissionsList = (id) => {
 
 const onFormSubmit = async (e) => {
     try {
-        await userService.getUserInfo(e.values.login);
-        let newPermission = {
-            id: e.values.id,
-            permission_level: 'viewer'
-        }
+        isLoading.value = true
+        var info = (await userService.getUserInfo(e.values.login)).data;
+        info.permission_level = 'viewer'
 
-        if (permissions.value.filter(p => p.id === newPermission.id).length > 0) {
+        if (permissions.value.filter(p => p.id === info.id).length > 0) {
             throw new Error("Пользователь уже добавлен в список");
         }
 
-        toGrantPermissions.value.push(newPermission);
-        permissions.value.push(newPermission);
+        toGrantPermissions.value.push(info);
+        permissions.value.push(info);
         toast.add({ severity: 'success', summary: 'Пользователь добавлен', life: 3000 });
         e.reset();
     }
@@ -178,6 +192,9 @@ const onFormSubmit = async (e) => {
             message = error.message;
         }
         toast.add({ severity: 'error', summary: 'Ошибка', detail: message, life: 3000 });
+    }
+    finally {
+        isLoading.value = false
     }
 }
 
@@ -230,7 +247,11 @@ const handleCopy = (content) => {
             <DataTable :value="permissions" scrollable scrollHeight="flex" style="max-height: 25vh;"
                 :show-headers="false">
                 <template #empty> Нет пользователей </template>
-                <Column field="id"></Column>
+                <Column>
+                    <template #body="{ data }">
+                        <p>{{ data.firstname }} {{ data.lastname }}</p>
+                    </template>
+                </Column>
                 <Column field="permission_level">
                     <template #body="slotProps">
                         <label v-if="slotProps.data.permission_level === 'owner'">Владелец</label>
