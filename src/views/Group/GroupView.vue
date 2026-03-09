@@ -197,12 +197,12 @@ const openTakeSettingsDialog1 = (settings, quizId) => {
     });
 }
 
-const onRoleChange = (login, newRole) => {
+const onRoleChange = (id, newRole) => {
     if (!groupId) {
         return;
     }
     isMembersLoading.value = true;
-    groupService.editMembersRoles(groupId, [{ login: login, role: newRole }]).finally(_ => isMembersLoading.value = false)
+    groupService.editMembersRoles(groupId, [{ user_id: id, role: newRole }]).finally(_ => isMembersLoading.value = false)
 }
 
 const removeMember = (login) => {
@@ -404,7 +404,7 @@ const deleteGroup = () => {
                                     roles[slotProps.data.role] }}</label>
                                 <Select v-else :options="rolesOptions" option-value="value" option-label="description"
                                     fluid v-model="slotProps.data.role"
-                                    @change="onRoleChange(slotProps.data.login, slotProps.data.role)"></Select>
+                                    @change="onRoleChange(slotProps.data.id, slotProps.data.role)"></Select>
                             </div>
                         </template>
                     </Column>
