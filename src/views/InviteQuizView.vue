@@ -1,11 +1,11 @@
 <template>
     <div class="flex justify-between center gap-10">
-        <div class="flex flex-col items-left gap-10 center-vert" style="width: 40vw;">
+        <div class="flex flex-col items-left gap-10 center-vert">
             <h1 class="font-bold text-3xl">Используйте свой аккаунт</h1>
             <LoginForm v-on:forward="forwardToTest" />
         </div>
         <Divider layout="vertical">или</Divider>
-        <div class="flex flex-col items-left gap-10" style="width: 40vw;">
+        <div class="flex flex-col items-left gap-10">
             <h1 class="font-bold text-3xl">Просто введите имя</h1>
             <TempLoginForm v-on:forward="forwardToTest" />
         </div>

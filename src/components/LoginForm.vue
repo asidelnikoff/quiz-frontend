@@ -8,15 +8,12 @@ import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
 import { hashSHA256 } from './utils/hash';
 import { useAuthStore } from '@/stores/auth';
-import { useRoute } from 'vue-router';
 
 const emit = defineEmits(['forward'])
 
 const toast = useToast();
 const router = useRouter();
 const store = useAuthStore();
-const route = useRoute();
-
 store.logout()
 
 const initialValues = ref({
