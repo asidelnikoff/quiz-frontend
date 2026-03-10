@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue';
-import { Message, Password, Button, InputText, useConfirm } from 'primevue';
+import { ref, onMounted } from 'vue';
+import { Message, Password, Button, InputText, useConfirm, Divider, FloatLabel, ProgressSpinner } from 'primevue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
 import { Form } from '@primevue/forms';
@@ -26,18 +26,34 @@ const initialValues = ref({
 const resolver = ref(zodResolver(
     z.object({
         newPassword: z.string()
-            .min(4, 'Пароль должен содержать не менее 4-х символов')
+            .trim()
+            .regex(/^[a-zA-z0-9!@#$%^&*()_+-="]{4,20}$/, {
+                error: (iss) => {
+                    iss.code,
+                        iss.input;
+                    iss.inst;
+                    iss.path;
+                    return 'Пароль не соответствует требованиям. Длина: 4-20 символов. Символы: A-z,0-9,(!@#$%^&*()_+-=")'
+                }
+            })
             .optional()
             .or(z.literal('')),
         repeatPassword: z.string()
+            .trim()
             .optional()
             .or(z.literal('')),
-        login: z.string(),
-        firstname: z.string()
+        login: z.string()
+            .trim()
+            .regex(/^[a-zA-z0-9_-]+$/, {
+                error: (iss) => {
+                    return 'Логин может состоять из латинских букв, цифр и символов \'-\',\'_\''
+                }
+            }),
+        firstname: z.string().trim()
             .min(1, 'Имя не может быть пустым'),
-        lastname: z.string()
+        lastname: z.string().trim()
             .min(1, 'Фамилия не может быть пустой'),
-        patronymic: z.string().nullable(),
+        patronymic: z.string().trim().nullable(),
     })
         .refine((data) => {
             if (!data.newPassword || data.newPassword.length <= 0) {
@@ -52,19 +68,23 @@ const resolver = ref(zodResolver(
             })
 ));
 
-onBeforeMount(async () => {
-    let user = (await authService.getUser()).data;
-    console.log(user)
-    if (user) {
-        initialValues.value = {
-            login: user.login,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            patronymic: user.patronymic ?? null
-        }
-
-        console.log(initialValues.value);
-    }
+onMounted(() => {
+    isLoading.value = true
+    authService.getUser()
+        .then(response => {
+            var user = response.data;
+            if (user) {
+                initialValues.value = {
+                    login: user.login,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    patronymic: user.patronymic ?? null
+                }
+            }
+        })
+        .finally(() => {
+            isLoading.value = false
+        })
 })
 
 const onFormSubmit = async ({ values, valid }) => {
@@ -81,7 +101,12 @@ const onFormSubmit = async ({ values, valid }) => {
             patronymic: newPatronymic === initialValues.value.patronymic ? null : newPatronymic,
             password: values.newPassword ?? null
         };
-        if (updated.login === null && updated.firstname === null && updated.lastname === null && newPatronymic === initialValues.value.patronymic && updated.password === null) {
+        if (updated.login === null
+            && updated.firstname === null
+            && updated.lastname === null
+            && newPatronymic === initialValues.value.patronymic
+            && updated.password === null) {
+            toast.add({ severity: 'info', summary: 'Данные идентичны', life: 3000 });
             return;
         }
 
@@ -145,26 +170,41 @@ const deleteAccount = async () => {
             <ResetOnChange :value="initialValues">
                 <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" :validateOnValueUpdate="false"
                     @submit="onFormSubmit" class="flex flex-col gap-5 w-full">
-                    <div class="flex flex-row gap-10">
+                    <h2><b>Персональные данные</b></h2>
+                    <div class="flex flex-col md:flex-row gap-10 pt-5">
                         <div class="flex flex-col w-full gap-1">
-                            <InputText name="firstname" placeholder="Имя *" fluid />
+                            <FloatLabel>
+                                <InputText id="firstname" name="firstname" fluid />
+                                <label for="firstname">Имя *</label>
+                            </FloatLabel>
                             <Message v-if="$form.firstname?.invalid" severity="error" size="small" variant="simple">{{
                                 $form.firstname.error?.message }}</Message>
                         </div>
                         <div class="flex flex-col w-full gap-1">
-                            <InputText name="lastname" placeholder="Фамилия *" fluid />
+                            <FloatLabel>
+                                <InputText id="lastname" name="lastname" fluid />
+                                <label for="firstname">Фамилия *</label>
+                            </FloatLabel>
                             <Message v-if="$form.lastname?.invalid" severity="error" size="small" variant="simple">{{
                                 $form.lastname.error?.message }}</Message>
                         </div>
                         <div class="flex flex-col w-full gap-1">
-                            <InputText name="patronymic" placeholder="Отчество" fluid />
+                            <FloatLabel>
+                                <InputText id="patronymic" name="patronymic" fluid />
+                                <label for="patronymic">Отчество</label>
+                            </FloatLabel>
                             <Message v-if="$form.patronymic?.invalid" severity="error" size="small" variant="simple">{{
                                 $form.patronymic.error?.message }}</Message>
                         </div>
                     </div>
-                    <div class="flex flex-row gap-10">
+                    <Divider />
+                    <h2><b>Данные для входа</b></h2>
+                    <div class="flex flex-col md:flex-row gap-10 pt-5">
                         <div class="flex flex-col w-full gap-1">
-                            <InputText name="login" placeholder="Логин" fluid />
+                            <FloatLabel>
+                                <InputText id="login" name="login" fluid />
+                                <label for="login">Логин</label>
+                            </FloatLabel>
                             <Message v-if="$form.login?.invalid" severity="error" size="small" variant="simple">{{
                                 $form.login.error?.message }}</Message>
                         </div>
@@ -175,7 +215,7 @@ const deleteAccount = async () => {
                             <span></span>
                         </div>
                     </div>
-                    <div class="flex flex-row gap-10">
+                    <div class="flex flex-col md:flex-row gap-10">
                         <div class="flex flex-col w-full gap-1">
                             <Password name="newPassword" placeholder="Пароль" :feedback="false" fluid toggleMask />
                             <template v-if="$form.newPassword?.invalid">
@@ -195,7 +235,7 @@ const deleteAccount = async () => {
                             <span></span>
                         </div>
                     </div>
-                    <div class="flex flex-row gap-5 justify-end pt-5">
+                    <div class="flex flex-col md:flex-row gap-5 justify-end pt-5">
                         <Button variant="outlined" icon="pi pi-trash" iconPos="right" label="Удалить"
                             :disabled="isLoading" @click="openDeleteDialog"></Button>
                         <Button type="submit" icon="pi pi-check" iconPos="right" label="Сохранить"
@@ -203,6 +243,11 @@ const deleteAccount = async () => {
                     </div>
                 </Form>
             </ResetOnChange>
+        </div>
+        <div v-if="isLoading" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
+        </div>
+        <div v-if="isLoading" class="center">
+            <ProgressSpinner style="height: 10rem;" />
         </div>
     </main>
 </template>
