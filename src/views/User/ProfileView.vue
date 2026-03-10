@@ -28,11 +28,7 @@ const resolver = ref(zodResolver(
         newPassword: z.string()
             .trim()
             .regex(/^[a-zA-z0-9!@#$%^&*()_+-="]{4,20}$/, {
-                error: (iss) => {
-                    iss.code,
-                        iss.input;
-                    iss.inst;
-                    iss.path;
+                error: () => {
                     return 'Пароль не соответствует требованиям. Длина: 4-20 символов. Символы: A-z,0-9,(!@#$%^&*()_+-=")'
                 }
             })
@@ -45,7 +41,7 @@ const resolver = ref(zodResolver(
         login: z.string()
             .trim()
             .regex(/^[a-zA-z0-9_-]+$/, {
-                error: (iss) => {
+                error: () => {
                     return 'Логин может состоять из латинских букв, цифр и символов \'-\',\'_\''
                 }
             }),
