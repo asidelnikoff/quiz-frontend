@@ -67,7 +67,7 @@ const authToGroup = async () => {
 
 onBeforeRouteLeave((to, _) => {
     if (to.name !== 'group-test') {
-        authStore.groupLogout(groupId)
+        authStore.groupLogout()
     }
 })
 
@@ -77,7 +77,7 @@ const fetchTests = async (query) => {
         if (!query?.not_changed) {
             searchQuery.value = query?.value;
         }
-        let quizzes = (await groupService.getGroupQuizzes(groupId, {
+        let quizzes = (await groupService.getGroupQuizzes({
             search: searchQuery.value,
             limit: perPage.value,
             page: currentPage.value + 1
@@ -107,7 +107,7 @@ watch([tests, totalItems], ([newTests, newTotalItems]) => {
 const fetchMembers = async () => {
     isMembersLoading.value = true;
     try {
-        let group = (await groupService.getGroupDetailed(groupId, {
+        let group = (await groupService.getGroupDetailed({
             limit: perPageMembers.value,
             page: currentMembersPage.value + 1,
             search: membersSearchQuery.value
@@ -147,7 +147,7 @@ const goToTest = (id) => {
 
 const editName = () => {
     if (isNameEditing.value && groupId && groupName.value) {
-        groupService.updateGroup(groupId, { name: groupName.value })
+        groupService.updateGroup({ name: groupName.value })
         isNameEditing.value = false
     }
     else if (!isNameEditing.value) {
@@ -165,7 +165,7 @@ const onBlur = () => {
 
 const openDefaultSettingsDialog = () => {
     isTestsLoading.value = true
-    groupService.getGroupDefaultSettings(groupId).then(response => {
+    groupService.getGroupDefaultSettings().then(response => {
         openTakeSettingsDialog1(response.data, null)
         isTestsLoading.value = false
     })
@@ -173,7 +173,7 @@ const openDefaultSettingsDialog = () => {
 
 const openTakeSettingsDialog = (id) => {
     isTestsLoading.value = true
-    groupService.getGroupQuizTakeSettings(groupId, id.value).then(response => {
+    groupService.getGroupQuizTakeSettings(id.value).then(response => {
         openTakeSettingsDialog1(response.data, id.value)
         isTestsLoading.value = false
     })
@@ -293,7 +293,7 @@ const deleteQuizDialog = (params) => {
     });
 }
 const deleteQuiz = (id) => {
-    groupService.deleteQuizFromGroup(groupId, { quiz_id: id })
+    groupService.deleteQuizFromGroup({ quiz_id: id })
         .then(_ => {
             fetchTests({ not_changed: true })
         })
@@ -338,7 +338,7 @@ const deleteGroupDialog = () => {
 }
 
 const deleteGroup = () => {
-    groupService.deleteGroup(groupId).then(_ => {
+    groupService.deleteGroup().then(_ => {
         router.back()
     })
 }

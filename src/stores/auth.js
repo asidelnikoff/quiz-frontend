@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
     return response
   }
   async function groupLogout(groupId) {
-    const response = await groupService.logoutFromGroup(groupId)
+    const response = await groupService.logoutFromGroup()
     if (response.status === 200) {
       token.value = response.data.access_token;
       localStorage.setItem('token', token.value);

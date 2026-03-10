@@ -60,8 +60,8 @@ const selectTest = (id) => {
   if (!id) {
     return
   }
-  const groupId = dialogRef.value.data.groupId;
-  groupService.addQuizToGroup(groupId, { quiz_id: id })
+  
+  groupService.addQuizToGroup({ quiz_id: id })
     .then(_ => {
       emit('testAdd')
       toast.add({ severity: 'success', summary: 'Тест добавлен', life: 3000 });

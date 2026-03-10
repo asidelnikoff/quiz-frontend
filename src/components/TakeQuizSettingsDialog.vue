@@ -53,7 +53,7 @@ const save = () => {
 
     if (dialogRef.value.data.quizId) {
         if (dialogRef.value.data.groupId) {
-            groupService.updateGroupQuizz(dialogRef.value.data.groupId, {
+            groupService.updateGroupQuizz({
                 quiz_id: dialogRef.value.data.quizId,
                 settings: testStore.getTakeSettings
             })
@@ -65,7 +65,7 @@ const save = () => {
         }
     }
     else if (dialogRef.value.data.groupId) {
-        groupService.updateGroupDefaultSettings(dialogRef.value.data.groupId, testStore.getTakeSettings)
+        groupService.updateGroupDefaultSettings(testStore.getTakeSettings)
     }
     close()
 }

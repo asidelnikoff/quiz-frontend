@@ -16,8 +16,8 @@ const quizService = {
         return response;
     },
 
-    async getGroupQuiz(groupId, quizId) {
-        const response = await api.get(apiPrefix + `/group/${groupId}/quiz/${quizId}`);
+    async getGroupQuiz(quizId) {
+        const response = await api.get(apiPrefix + `/group/quiz/${quizId}`);
         return response;
     },
 

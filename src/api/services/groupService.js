@@ -1,91 +1,126 @@
-import api from "..";
-import quizService from "./quizService";
+import api from '..'
 
-const apiPrefix = '/users-ms/api/v1';
-const quizApiPrefix = '/quiz-ms/api/v1';
+const apiPrefix = '/users-ms/api/v1'
+const quizApiPrefix = '/quiz-ms/api/v1'
 const groupService = {
-    async createGroup(params) {
-        const response = await api.post(apiPrefix + `/group/create`, params, { withCredentials: true });
-        return response;
-    },
+  // COMMON GROUP
+  async createGroup(params) {
+    const response = await api.post(apiPrefix + `/group/create`, params, { withCredentials: true })
+    return response
+  },
 
-    async updateGroup(groupId, params) {
-        const response = await api.post(apiPrefix + `/group/${groupId}/update`, params, { withCredentials: true });
-        return response;
-    },
+  async updateGroup(params) {
+    const response = await api.post(apiPrefix + `/group/update`, params, { withCredentials: true })
+    return response
+  },
 
-    async deleteGroup(groupId) {
-        const response = await api.delete(apiPrefix + `/group/${groupId}/delete`, { withCredentials: true });
-        return response;
-    },
+  async deleteGroup() {
+    const response = await api.delete(apiPrefix + `/group/delete`, { withCredentials: true })
+    return response
+  },
+  ///
 
-    async addMembersToGroup(groupId, params) {
-        const response = await api.post(apiPrefix + `/group/${groupId}/add-members`, params, { withCredentials: true });
-        return response;
-    },
+  // USER GROUP
+  async authToGroup(groupId) {
+    const response = await api.post(
+      apiPrefix + `/group/${groupId}/auth`,
+      {},
+      { withCredentials: true },
+    )
+    return response
+  },
+  async logoutFromGroup() {
+    const response = await api.post(apiPrefix + `/group/logout`, {}, { withCredentials: true })
+    return response
+  },
 
-    async editMembersRoles(groupId, params) {
-        const response = await api.post(apiPrefix + `/group/${groupId}/edit-members-roles`, params, { withCredentials: true });
-        return response;
-    },
+  async getUserGroups(params) {
+    const response = await api.post(apiPrefix + `/group/list`, params, { withCredentials: true })
+    return response
+  },
 
-    async deleteMembersFromGroup(groupId, params) {
-        const response = await api.post(apiPrefix + `/group/${groupId}/delete-members`, params, { withCredentials: true });
-        return response;
-    },
+  async getGroupDetailed(params) {
+    const response = await api.post(apiPrefix + `/group/detailed-info`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
 
-    async getUserGroups(params) {
-        const response = await api.post(apiPrefix + `/group/list`, params, { withCredentials: true });
-        return response;
-    },
+  async getGroupQuizzes(params) {
+    const response = await api.get(
+      quizApiPrefix + `/group/quiz/list`,
+      {
+        params: params,
+      },
+      { withCredentials: true },
+    )
+    return response
+  },
+  ///
 
-    async getGroupDetailed(groupId, params) {
-        const response = await api.post(apiPrefix + `/group/${groupId}/detailed-info`, params, { withCredentials: true });
-        return response;
-    },
+  // MEMBERS
+  async addMembersToGroup(params) {
+    const response = await api.post(apiPrefix + `/group/members/add`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
 
-    async getGroupQuizzes(groupId, params) {
-        const response = await api.get(quizApiPrefix + `/group/${groupId}/quiz-list`, {
-            params: params
-        }, { withCredentials: true })
-        return response;
-    },
+  async editMembersRoles(params) {
+    const response = await api.post(apiPrefix + `/group/members/roles`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
 
-    async updateGroupQuizz(groupId, params) {
-        const response = await api.post(quizApiPrefix + `/group/${groupId}/update-quiz`, params, { withCredentials: true });
-        return response;
-    },
-    async updateGroupDefaultSettings(groupId, params) {
-        const response = await api.post(quizApiPrefix + `/group/${groupId}/quiz/default-settings`, params, { withCredentials: true });
-        return response;
-    },
-    async getGroupDefaultSettings(groupId) {
-        const response = await api.get(quizApiPrefix + `/group/${groupId}/quiz/default-settings`, { withCredentials: true });
-        return response;
-    },
-    async getGroupQuizTakeSettings(groupId, quizId) {
-        const response = await api.get(quizApiPrefix + `/group/${groupId}/quiz/${quizId}/settings`, { withCredentials: true });
-        return response;
-    },
+  async deleteMembersFromGroup(params) {
+    const response = await api.post(apiPrefix + `/group/members/delete`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
+  ///
 
-    async addQuizToGroup(groupId, params) {
-        const response = await api.post(quizApiPrefix + `/group/${groupId}/add-quiz`, params, { withCredentials: true });
-        return response;
-    },
+  // QUIZZES
+  async updateGroupQuizz(params) {
+    const response = await api.post(quizApiPrefix + `/group/quiz/update`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
+  async updateGroupDefaultSettings(params) {
+    const response = await api.post(quizApiPrefix + `/group/quiz/default-settings`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
+  async getGroupDefaultSettings() {
+    const response = await api.get(quizApiPrefix + `/group/quiz/default-settings`, {
+      withCredentials: true,
+    })
+    return response
+  },
+  async getGroupQuizTakeSettings(quizId) {
+    const response = await api.get(quizApiPrefix + `/group/quiz/${quizId}/settings`, {
+      withCredentials: true,
+    })
+    return response
+  },
 
-    async deleteQuizFromGroup(groupId, params) {
-        const response = await api.post(quizApiPrefix + `/group/${groupId}/delete-quiz`, params, { withCredentials: true });
-        return response;
-    },
+  async addQuizToGroup(params) {
+    const response = await api.post(quizApiPrefix + `/group/quiz/add`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
 
-    async authToGroup(groupId) {
-        const response = await api.post(apiPrefix + `/group/${groupId}/auth-to`, {}, { withCredentials: true });
-        return response;
-    },
-    async logoutFromGroup(groupId) {
-        const response = await api.post(apiPrefix + `/group/${groupId}/logout-from`, {}, { withCredentials: true });
-        return response;
-    }
+  async deleteQuizFromGroup(params) {
+    const response = await api.post(quizApiPrefix + `/group/quiz/delete`, params, {
+      withCredentials: true,
+    })
+    return response
+  },
+  ///
 }
 
-export default groupService;
+export default groupService
