@@ -15,7 +15,7 @@ hideSidebar();
 <template>
     <main>
         <div class="center">
-            <div class="flex flex-col items-left gap-10">
+            <div class="flex flex-col items-left gap-10" style="min-width: 30vw;">
                 <h1 class="font-bold text-3xl">Добро пожаловать!</h1>
                 <LoginForm v-on:forward="router.push({ name: 'home' })" />
             </div>
