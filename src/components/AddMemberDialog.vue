@@ -5,6 +5,7 @@ import { InputText, Button, useToast } from 'primevue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import z from 'zod';
 import groupService from '@/api/services/groupService';
+import toastService from './utils/toastService';
 
 const dialogRef = inject('dialogRef')
 const toast = useToast();
@@ -20,42 +21,22 @@ const resolver = ref(zodResolver(
     })
 ))
 
-const closeDialog = () => {
-    dialogRef.value.close();
-}
-
 const onFormSubmit = async (e) => {
     if (!e.values.login) {
         return
     }
-    const groupId = dialogRef.value.data.groupId;
-    groupService.addMembersToGroup(groupId, [{ login: e.values.login, role: 'member' }])
+
+    groupService.addMembersToGroup([{ login: e.values.login, role: 'member' }])
         .then(_ => {
             emit('memberAdd')
-            toast.add({ severity: 'success', summary: 'Пользователь добавлен', life: 3000 });
+            toastService.showSuccessMessage(toast, 'Пользователь добавлен')
             e.reset();
         })
-        .catch(error => {
-            let message = '';
-            if (error.status < 500) {
-                message = error.response.data.error_description
-                if (error.response?.data?.error_code === 'users_not_exist') {
-                    message = 'Пользователи '
-                    message += '\r\n' + error.response.data.details + '\r\n'
-                    message += 'не найдены в базе данных'
-                }
-                if (error.response?.data.error_code === 'all_in_group') {
-                    message = 'Выбранные пользователи уже добавлены в группу'
-                }
-            }
-            else if (error.status) {
-                message = 'Непредвиденная ошибка добавления пользователя. Попробуйте снова'
-            }
-            else {
-                message = error.message;
-            }
-            toast.add({ severity: 'error', summary: 'Ошибка', detail: message, life: 3000 });
-        })
+        .catch(error => toastService.showBackendErrorMessage(toast, error))
+}
+
+const closeDialog = () => {
+    dialogRef.value.close();
 }
 </script>
 
