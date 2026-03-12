@@ -59,11 +59,11 @@ const fetchTest = async () => {
 
     if (groupId) {
       isSettingsEditable.value = false
-      testInfo.value = (await quizService.getGroupQuiz(testId)
+      testInfo.value = (await quizService.getGroupQuizInfo(testId)
         .catch(() => { data: null })).data;
     }
     else {
-      testInfo.value = (await quizService.getQuiz(testId, invite)
+      testInfo.value = (await quizService.getQuizInfo(testId, invite)
         .catch(() => { data: null })).data;
     }
     console.log(testInfo.value);

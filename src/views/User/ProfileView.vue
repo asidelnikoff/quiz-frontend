@@ -7,6 +7,7 @@ import { Form } from '@primevue/forms';
 import { useToast } from 'primevue/usetoast';
 import { useAuthStore } from '@/stores/auth';
 import authService from '@/api/services/authService';
+import userService from '@/api/services/userService';
 import ResetOnChange from '@/components/ResetOnChange.vue';
 import { useRouter } from 'vue-router';
 import { formatDate } from '@/components/utils/dateFormat';
@@ -106,7 +107,7 @@ const onFormSubmit = async ({ values, valid }) => {
             return;
         }
 
-        await authService.updateUser(updated)
+        await userService.updateUser(updated)
         if (updated.login !== null) {
             await authStore.refresh()
         }

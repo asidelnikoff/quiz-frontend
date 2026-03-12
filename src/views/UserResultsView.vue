@@ -18,7 +18,7 @@ const router = useRouter()
 const fetchResults = async () => {
     isLoading.value = true;
     try {
-        const response = await quizService.getResults({
+        const response = await quizService.getResultsList({
             search: searchQuery.value,
             limit: perPage.value,
             page: currentPage.value,

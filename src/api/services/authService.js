@@ -26,18 +26,13 @@ const authService = {
     return response;
   },
 
-  async getUser() {
-    const response = await api.get(apiPrefix + '/user', { withCredentials: true });
-    return response;
-  },
-
   async deleteUser() {
     const response = await api.delete(apiPrefix + '/user/delete', { withCredentials: true });
     return response;
   },
 
-  async updateUser(params) {
-    const response = await api.post(apiPrefix + '/user/update', params, { withCredentials: true });
+  async getUser() {
+    const response = await api.get(apiPrefix + '/user', { withCredentials: true });
     return response;
   }
 }
