@@ -1,6 +1,7 @@
 <script setup>
 import { ref, inject } from 'vue';
-import { ProgressSpinner, Button } from 'primevue';
+import { Button } from 'primevue';
+import LoadingSpinner from './LoadingSpinner.vue';
 import TakeQuizSettings from './TakeQuizSettings.vue';
 import { useTestStore } from '@/stores/test';
 import quizService from '@/api/services/quizService';
@@ -72,10 +73,7 @@ const save = () => {
 </script>
 
 <template>
-    <div v-if="isLoading" class="text-center">
-        <ProgressSpinner style="height: 10rem;" />
-    </div>
-    <div v-else class="flex flex-col gap-5 w-full">
+    <div class="flex flex-col gap-5 w-full">
         <TakeQuizSettings v-model:shuffle-questions="shuffleQuestions" v-model:shuffle-answers="shuffleAnswers"
             v-model:is-exam-mode="isExamMode" v-model:is-attempt-view-enabled="isAttemptViewEnabled"
             v-model:take-time="takeTime" />
@@ -84,4 +82,5 @@ const save = () => {
             <Button label="Сохранить" icon="pi pi-check" icon-pos="right" @click="save"></Button>
         </div>
     </div>
+    <LoadingSpinner :is-loading="isLoading"/>
 </template>

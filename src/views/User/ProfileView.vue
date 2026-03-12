@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Message, Password, Button, InputText, useConfirm, Divider, FloatLabel, ProgressSpinner } from 'primevue';
+import { Message, Password, Button, InputText, useConfirm, Divider, FloatLabel } from 'primevue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
 import { Form } from '@primevue/forms';
@@ -12,6 +12,7 @@ import ResetOnChange from '@/components/ResetOnChange.vue';
 import { useRouter } from 'vue-router';
 import { formatDate } from '@/components/utils/dateFormat';
 import toastService from '@/components/utils/toastService';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 const authStore = useAuthStore()
 const toast = useToast();
@@ -230,10 +231,6 @@ const deleteAccount = async () => {
                 </Form>
             </ResetOnChange>
         </div>
-        <div v-if="isLoading" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
-        </div>
-        <div v-if="isLoading" class="center">
-            <ProgressSpinner style="height: 10rem;" />
-        </div>
+        <LoadingSpinner :isLoading="isLoading"/>
     </main>
 </template>

@@ -1,9 +1,10 @@
 <script setup>
-import { Button, Dialog, FileUpload, ProgressSpinner } from 'primevue';
+import { Button, Dialog, FileUpload } from 'primevue';
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import quizService from '@/api/services/quizService';
 import toastService from './utils/toastService';
+import LoadingSpinner from './LoadingSpinner.vue';
 
 const toast = useToast();
 
@@ -79,11 +80,7 @@ function onUploadFile(event) {
             <Button @click="closeDialog" variant="outlined">Отмена</Button>
             <Button @click="uploadFile" label="Загрузить" icon="pi pi-check" iconPos="right"></Button>
         </div>
-        <div v-if="isLoading" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
-        </div>
-        <div v-if="isLoading" class="center">
-            <ProgressSpinner style="height: 10rem;" />
-        </div>
+        <LoadingSpinner :isLoading="isLoading"/>
     </Dialog>
     <Button variant="outlined" @click="openDialog" label="Загрузить из файла" icon="pi pi-upload"
         iconPos="right"></Button>

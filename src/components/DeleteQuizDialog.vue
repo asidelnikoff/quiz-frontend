@@ -1,6 +1,7 @@
 <script setup>
 import { inject, ref } from 'vue';
-import { Button, Checkbox, ProgressSpinner } from 'primevue';
+import { Button, Checkbox } from 'primevue';
+import LoadingSpinner from './LoadingSpinner.vue';
 import { useToast } from 'primevue';
 import quizService from '@/api/services/quizService';
 import toastService from './utils/toastService';
@@ -62,9 +63,5 @@ const closeDialog = () => {
             <Button :disabled="isLoading" label="Удалить" icon="pi pi-trash" icon-pos="right" @click="deleteQuiz"></Button>
         </div>
     </div>
-    <div v-if="isLoading" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
-    </div>
-    <div v-if="isLoading" class="center">
-        <ProgressSpinner style="height: 10rem;" />
-    </div>
+    <LoadingSpinner :is-loading="isLoading"/>
 </template>

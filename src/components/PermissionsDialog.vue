@@ -1,5 +1,6 @@
 <script setup>
-import { InputText, DataTable, Column, Button, Select, RadioButton, Divider, ProgressSpinner } from 'primevue';
+import { InputText, DataTable, Column, Button, Select, RadioButton, Divider } from 'primevue';
+import LoadingSpinner from './LoadingSpinner.vue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from 'primevue/usetoast';
@@ -219,10 +220,7 @@ const handleCopy = (content) => {
 </script>
 
 <template>
-    <div v-if="isLoading" class="text-center">
-        <ProgressSpinner style="height: 10rem;" />
-    </div>
-    <div v-else class="flex flex-col gap-5 w-full">
+    <div class="flex flex-col gap-5 w-full">
         <Form v-slot="$form" :resolver="resolver" :initial-values="initialValues" @submit="onFormSubmit">
             <div class="flex flex-row gap-2 w-full">
                 <InputText placeholder="Введите логин пользователя" name="login" fluid />
@@ -271,4 +269,5 @@ const handleCopy = (content) => {
             </div>
         </div>
     </div>
+    <LoadingSpinner :is-loading="isLoading"/>
 </template>

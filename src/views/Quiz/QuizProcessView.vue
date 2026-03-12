@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { Button, ProgressBar, ProgressSpinner, useConfirm } from 'primevue';
+import { Button, ProgressBar, useConfirm } from 'primevue';
 import quizService from '@/api/services/quizService';
 import { useSessionStore } from '@/stores/session';
 import { hideSidebar } from '@/components/Sidepanel/state';
@@ -9,6 +9,7 @@ import Question from '@/components/Question.vue';
 import SideQuestionsListbox from '@/components/SideQuestionsListbox.vue';
 import { useToast } from 'primevue';
 import toastService from '@/components/utils/toastService';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 // State
 var testName = ref('');
@@ -144,10 +145,7 @@ const confirmCompleteTest = () => {
 
 <template>
   <main>
-    <div v-if="isLoading" class="center">
-      <ProgressSpinner style="height: 10rem;" />
-    </div>
-    <div v-else class="flex flex-col gap-5">
+    <div class="flex flex-col gap-5">
       <div class="flex justify-between items-center">
         <h1 class="font-bold text-3xl py-2">{{ testName }}</h1>
         <Button @click="completeTest" variant="outlined" label="Завершить" icon="pi pi-times" iconPos="right"></Button>
@@ -173,5 +171,6 @@ const confirmCompleteTest = () => {
           :currentQuestionIndex="currentQuestionIndex" :questions="questions" />
       </div>
     </div>
+    <LoadingSpinner :isLoading="isLoading"/>
   </main>
 </template>

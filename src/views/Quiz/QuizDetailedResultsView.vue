@@ -1,12 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Button, ProgressBar, ProgressSpinner } from 'primevue';
+import { Button, ProgressBar } from 'primevue';
 import quizService from '@/api/services/quizService';
 import Question from '@/components/Question.vue';
 import SideQuestionsListbox from '@/components/SideQuestionsListbox.vue';
 import { hideSidebar } from '@/components/Sidepanel/state';
 import { useSessionStore } from '@/stores/session';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 const router = useRouter();
 const route = useRoute()
@@ -62,10 +63,7 @@ const completeTest = () => {
 
 <template>
   <main>
-    <div v-if="isLoading" class="center">
-        <ProgressSpinner style="height: 10rem;" />
-    </div>
-    <div v-else class="flex flex-col gap-5">
+    <div class="flex flex-col gap-5">
       <div class="flex justify-between items-center">
         <h1 class="font-bold text-3xl">{{ testName }}</h1>
         <Button @click="completeTest" variant="outlined" label="Вернуться" icon="pi pi-arrow-left"></Button>
@@ -84,5 +82,6 @@ const completeTest = () => {
           :questions="questions" />
       </div>
     </div>
+    <LoadingSpinner :isLoading="isLoading" />
   </main>
 </template>
