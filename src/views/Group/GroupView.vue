@@ -202,15 +202,15 @@ const onRoleChange = (id, newRole) => {
         return;
     }
     isMembersLoading.value = true;
-    groupService.editMembersRoles(groupId, [{ user_id: id, role: newRole }]).finally(_ => isMembersLoading.value = false)
+    groupService.editMembersRoles([{ user_id: id, role: newRole }]).finally(_ => isMembersLoading.value = false)
 }
 
-const removeMember = (login) => {
+const removeMember = (firstname, lastname, id) => {
     if (!groupId) {
         return;
     }
 
-    if (authStore.getLogin === login) {
+    if (authStore.getId === id) {
         confirm.require({
             message: `Вы собираетесь выйти из группы. Уверены, что хотите покинуть группу?`,
             header: 'Выйти из группы?',
@@ -225,13 +225,13 @@ const removeMember = (login) => {
                 iconPos: 'right'
             },
             accept: () => {
-                deleteMember(login);
+                deleteMember(id);
             }
         });
     }
     else {
         confirm.require({
-            message: `Вы собираетесь удалить пользователя ${login} из группы. Хотите продолжить?`,
+            message: `Вы собираетесь удалить ${firstname} ${lastname} из группы. Хотите продолжить?`,
             header: 'Удалить пользователя из группы?',
             rejectProps: {
                 label: 'Отмена',
@@ -244,14 +244,14 @@ const removeMember = (login) => {
                 iconPos: 'right'
             },
             accept: () => {
-                deleteMember(login);
+                deleteMember(id);
             }
         });
     }
 }
-const deleteMember = (login) => {
+const deleteMember = (id) => {
     isMembersLoading.value = true;
-    groupService.deleteMembersFromGroup(groupId, [login]).then(_ => members.value = members.value.filter(a => a.login != login)).finally(_ => isMembersLoading.value = false)
+    groupService.deleteMembersFromGroup([id]).then(_ => members.value = members.value.filter(a => a.id != id)).finally(_ => isMembersLoading.value = false)
 
 }
 
@@ -388,30 +388,30 @@ const deleteGroup = () => {
                     style="max-height: 58vh;">
                     <template #empty> Нет участников для отображения </template>
                     <Column header="#">
-                        <template #body="slotProps">
-                            {{ slotProps.index + 1 + first }}
+                        <template #body="{ index }">
+                            {{ index + 1 + first }}
                         </template>
                     </Column>
                     <Column header="Имя">
-                        <template #body="slotProps">
-                            {{ slotProps.data.lastname }} {{ slotProps.data.firstname }} {{ slotProps.data.patronymic }}
+                        <template #body="{ data }">
+                            {{ data.lastname }} {{ data.firstname }} {{ data.patronymic }}
                         </template>
                     </Column>
                     <Column header="Роль">
-                        <template #body="slotProps">
+                        <template #body="{ data }">
                             <div>
-                                <label v-if="slotProps.data.role === 'creator' || !isMembersListEditingEnabled">{{
-                                    roles[slotProps.data.role] }}</label>
+                                <label v-if="data.role === 'creator' || !isMembersListEditingEnabled">{{
+                                    roles[data.role] }}</label>
                                 <Select v-else :options="rolesOptions" option-value="value" option-label="description"
-                                    fluid v-model="slotProps.data.role"
-                                    @change="onRoleChange(slotProps.data.id, slotProps.data.role)"></Select>
+                                    fluid v-model="data.role"
+                                    @change="onRoleChange(data.id, data.role)"></Select>
                             </div>
                         </template>
                     </Column>
                     <Column v-if="isMembersListEditingEnabled">
-                        <template #body="slotProps">
-                            <Button v-if="slotProps.data.role !== 'creator'" variant="text" icon="pi pi-times"
-                                @click="removeMember(slotProps.data.login)"></Button>
+                        <template #body="{ data }">
+                            <Button v-if="data.role !== 'creator'" variant="text" icon="pi pi-times"
+                                @click="removeMember(data.firstname, data.lastname, data.id)"></Button>
                         </template>
                     </Column>
                 </DataTable>
