@@ -2,11 +2,11 @@
 import { Paginator } from 'primevue';
 import { useToast } from 'primevue';
 import groupService from '@/api/services/groupService';
-import { inject, ref, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import TestsTable from './TestsTable.vue';
 import quizService from '@/api/services/quizService';
+import toastService from './utils/toastService';
 
-const dialogRef = inject('dialogRef')
 const toast = useToast();
 
 const quizzes = ref([])
@@ -56,7 +56,6 @@ watch([quizzes, totalItems], ([newTests, newTotalItems]) => {
 });
 
 const selectTest = (id) => {
-  console.log('selected', id)
   if (!id) {
     return
   }
@@ -64,27 +63,9 @@ const selectTest = (id) => {
   groupService.addQuizToGroup({ quiz_id: id })
     .then(_ => {
       emit('testAdd')
-      toast.add({ severity: 'success', summary: 'Тест добавлен', life: 3000 });
+      toastService.showSuccessMessage(toast, 'Тест добавлен')
     })
-    .catch(error => {
-      let message = '';
-      if (error.status < 500) {
-        message = error.response.data.error_description
-        if (error.response?.data?.error_code === 'quiz_not_exists') {
-          message = 'Тест не найден'
-        }
-        if (error.response?.data.error_code === 'quiz_in_group') {
-          message = 'Выбранный тест уже добавлен в группу'
-        }
-      }
-      else if (error.status) {
-        message = 'Непредвиденная ошибка добавления теста. Попробуйте снова'
-      }
-      else {
-        message = error.message;
-      }
-      toast.add({ severity: 'error', summary: 'Ошибка', detail: message, life: 3000 });
-    })
+    .catch(error => toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка добавления теста. Попробуйте снова'))
 }
 </script>
 

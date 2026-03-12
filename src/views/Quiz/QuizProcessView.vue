@@ -8,6 +8,7 @@ import { hideSidebar } from '@/components/Sidepanel/state';
 import Question from '@/components/Question.vue';
 import SideQuestionsListbox from '@/components/SideQuestionsListbox.vue';
 import { useToast } from 'primevue';
+import toastService from '@/components/utils/toastService';
 
 // State
 var testName = ref('');
@@ -33,8 +34,8 @@ onMounted(async () => {
     test = store.getTest;
     if (store.getSessionId()) {
       session.value = (await quizService.getSession(store.getSessionId()).catch(error => {
+        toastService.showBackendErrorMessage(toast, error)
         if (error?.response?.data?.error_code === 'session_not_exists') {
-          toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Сессия завершена', life: 3000 })
           router.back();
         }
       })).data;
@@ -144,7 +145,7 @@ const confirmCompleteTest = () => {
 <template>
   <main>
     <div v-if="isLoading" class="center">
-        <ProgressSpinner style="height: 10rem;" />
+      <ProgressSpinner style="height: 10rem;" />
     </div>
     <div v-else class="flex flex-col gap-5">
       <div class="flex justify-between items-center">
@@ -168,8 +169,8 @@ const confirmCompleteTest = () => {
               icon="pi pi-check" iconPos="right"></Button>
           </div>
         </div>
-        <SideQuestionsListbox class="w-full md:w-1/3" v-model:selectedQuestion="selectedQuestion" :currentQuestionIndex="currentQuestionIndex"
-          :questions="questions" />
+        <SideQuestionsListbox class="w-full md:w-1/3" v-model:selectedQuestion="selectedQuestion"
+          :currentQuestionIndex="currentQuestionIndex" :questions="questions" />
       </div>
     </div>
   </main>

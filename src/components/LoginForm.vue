@@ -8,6 +8,7 @@ import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
 import { hashSHA256 } from './utils/hash';
 import { useAuthStore } from '@/stores/auth';
+import toastService from './utils/toastService';
 
 const emit = defineEmits(['forward'])
 
@@ -41,21 +42,10 @@ const onFormSubmit = async ({ values }) => {
             remember_me: values.rememberMe
         });
         emit('forward');
-        toast.add({ severity: 'success', summary: 'Авторизация прошла успешно', life: 3000 });
+        toastService.showSuccessMessage(toast, 'Авторизация прошла успешно')
     }
     catch (error) {
-        let message = '';
-        if (error.status < 500) {
-            message = error.response.data.error_description
-            if (error.response?.data?.error_code === 'invalid_password' || error.response?.data?.error_code === 'user_not_found') {
-                message = 'Неверный логин или пароль'
-            }
-        }
-        else {
-            message = 'Непредвиденная ошибка авторизации. Попробуйте снова'
-            console.log(error)
-        }
-        toast.add({ severity: 'error', summary: 'Ошибка авторизации', detail: message, life: 3000 });
+        toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка авторизации. Попробуйте снова')
     }
     finally {
         isLoading.value = false;

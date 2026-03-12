@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router';
 import authService from '@/api/services/authService';
 import { hideSidebar } from '@/components/Sidepanel/state';
 import { hashSHA256 } from '@/components/utils/hash';
+import toastService from '@/components/utils/toastService';
 
 hideSidebar();
 
@@ -66,18 +67,10 @@ const onFormSubmit = async ({ values, valid }) => {
             patronymic: values.patronymic
         });
         router.back();
-        toast.add({ severity: 'success', summary: 'Регистрация прошла успешно', life: 3000 });
+        toastService.showSuccessMessage(toast, 'Регистрация прошла успешно')
     }
     catch (error) {
-        let message = '';
-        console.log(error);
-        if (error.status < 500) {
-            message = error.response.data.error_description
-        }
-        else {
-            message = 'Непредвиденная ошибка регистрации. Попробуйте снова'
-        }
-        toast.add({ severity: 'error', summary: 'Ошибка регистрации', detail: message, life: 3000 });
+        toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка регистрации. Попробуйте снова')
     }
     finally {
         isLoading.value = false;

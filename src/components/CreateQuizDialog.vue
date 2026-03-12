@@ -6,6 +6,7 @@ import z from 'zod';
 import { useToast } from 'primevue';
 import quizService from '@/api/services/quizService';
 import { inject, ref } from 'vue';
+import toastService from './utils/toastService';
 
 const dialogRef = inject('dialogRef')
 const toast = useToast();
@@ -34,23 +35,11 @@ const onFormSubmit = async (e) => {
     })
         .then(response => {
             emit('quizCreate', response.data.id)
-            toast.add({ severity: 'success', summary: 'Тест создан', life: 3000 });
+            toastService.showSuccessMessage(toast, 'Тест создан')
             e.reset();
             closeDialog()
         })
-        .catch(error => {
-            let message = '';
-            if (error.status < 500) {
-                message = error.response.data.error_description
-            }
-            else if (error.status) {
-                message = 'Непредвиденная ошибка создания теста. Попробуйте снова'
-            }
-            else {
-                message = error.message;
-            }
-            toast.add({ severity: 'error', summary: 'Ошибка', detail: message, life: 3000 });
-        })
+        .catch(error => toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка создания теста. Попробуйте снова'))
 }
 </script>
 

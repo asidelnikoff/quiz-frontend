@@ -3,6 +3,7 @@ import { inject, ref } from 'vue';
 import { Button, Checkbox, ProgressSpinner } from 'primevue';
 import { useToast } from 'primevue';
 import quizService from '@/api/services/quizService';
+import toastService from './utils/toastService';
 
 const dialogRef = inject('dialogRef');
 const quizName = ref('');
@@ -33,21 +34,11 @@ const deleteQuiz = () => {
     quizService.deleteQuiz(quizId.value, deleteQuestions.value)
         .then(response => {
             if (response.status === 200) {
-                toast.add({ severity: 'success', summary: 'Тест удален', life: 3000 });
-                console.log('emitting')
+                toastService.showSuccessMessage(toast, 'Тест удален')
                 emit('delete');
             }
         })
-        .catch(error => {
-            let message = '';
-            if (error.response.data.error_description) {
-                message = error.response.data.error_description
-            }
-            else {
-                message = 'Непредвиденная ошибка. Попробуйте снова'
-            }
-            toast.add({ severity: 'error', summary: 'Ошибка удаления', detail: message, life: 3000 });
-        })
+        .catch(error => toastService.showBackendErrorMessage(toast, error))
         .finally(() => {
             isLoading.value = false
             closeDialog()

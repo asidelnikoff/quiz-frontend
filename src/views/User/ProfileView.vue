@@ -11,6 +11,7 @@ import userService from '@/api/services/userService';
 import ResetOnChange from '@/components/ResetOnChange.vue';
 import { useRouter } from 'vue-router';
 import { formatDate } from '@/components/utils/dateFormat';
+import toastService from '@/components/utils/toastService';
 
 const authStore = useAuthStore()
 const toast = useToast();
@@ -103,7 +104,7 @@ const onFormSubmit = async ({ values, valid }) => {
             && updated.lastname === null
             && newPatronymic === initialValues.value.patronymic
             && updated.password === null) {
-            toast.add({ severity: 'info', summary: 'Данные идентичны', life: 3000 });
+            toastService.showInfoMessage('Данные идентичны')
             return;
         }
 
@@ -112,22 +113,10 @@ const onFormSubmit = async ({ values, valid }) => {
             await authStore.refresh()
         }
 
-        toast.add({ severity: 'success', summary: 'Данные успешно обновлены', life: 3000 });
+        toastService.showSuccessMessage('Данные успешно обновлены')
     }
     catch (error) {
-        let message = '';
-        console.log(error);
-        if (error.response?.data?.error_code === 'unable_to_change_login') {
-            message = 'Невозможно сменить логин'
-            message += '\nСледующая смена логина возможна: ' + `${formatDate(error.response.data.details)}`
-        }
-        else if (error.status < 500) {
-            message = error.response.data.error_description
-        }
-        else {
-            message = 'Непредвиденная ошибка обновления. Попробуйте снова'
-        }
-        toast.add({ severity: 'error', summary: 'Ошибка обновления', detail: message, life: 3000 });
+        toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка обновления. Попробуйте снова')
     }
     finally {
         isLoading.value = false;

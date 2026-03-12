@@ -3,6 +3,7 @@ import { Button, Dialog, FileUpload, ProgressSpinner } from 'primevue';
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import quizService from '@/api/services/quizService';
+import toastService from './utils/toastService';
 
 const toast = useToast();
 
@@ -27,15 +28,15 @@ function onUploadFile(event) {
     let file = event.files[0];
     isLoading.value = true
     quizService.uploadQuiz(file)
-        .then(function () {
+        .then(() => {
             fileupload.value.clear();
             fileupload.value.uploadedFileCount = 0;
 
-            toast.add({ severity: 'success', summary: 'Успех!', detail: 'Новые тесты добавлены', life: 3000 });
+            toastService.showSuccessMessage(toast, 'Тесты загружены')
             emit('testUpload');
         })
-        .catch(function () {
-            toast.add({ severity: 'error', summary: 'Ошибка', detail: 'При загрузке что-то пошло не так. Попробуйте снова', group: 'br', life: 3000 });
+        .catch(error => {
+            toastService.showBackendErrorMessage(toast, error, 'При загрузке что-то пошло не так. Попробуйте снова')
         })
         .finally(() => {
             isLoading.value = false

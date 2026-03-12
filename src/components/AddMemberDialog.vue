@@ -32,7 +32,7 @@ const onFormSubmit = async (e) => {
             toastService.showSuccessMessage(toast, 'Пользователь добавлен')
             e.reset();
         })
-        .catch(error => toastService.showBackendErrorMessage(toast, error))
+        .catch(error => toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка добавления пользователя. Попробуйте снова'))
 }
 
 const closeDialog = () => {

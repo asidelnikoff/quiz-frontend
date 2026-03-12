@@ -8,8 +8,8 @@ import { ref, inject, computed } from 'vue';
 import quizService from '@/api/services/quizService';
 import userService from '@/api/services/userService';
 import { useTestStore } from '@/stores/test';
-import { copyToClipboard } from './utils/clipboard';
 import { useAuthStore } from '@/stores/auth';
+import toastService from './utils/toastService';
 
 const dialogRef = inject('dialogRef');
 
@@ -117,20 +117,19 @@ const savePermissions = async () => {
                     id: a.id,
                     permission_level: a.permission_level
                 }
-            })));
+            }))
+                .then(_ => toastService.showSuccessMessage(toast, 'Доступы предоставлены'))
+                .catch(error => toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка предоставления прав. Попробуйте снова')));
         }
 
         let visibility = store.getVisibility !== store.getInitialVisibility ? store.getVisibility : null;
         if (visibility) {
-            list.push(quizService.setVisibilityLevel(quizId, { visibility_level: visibility }));
+            list.push(quizService.setVisibilityLevel(quizId, { visibility_level: visibility })
+                .then(_ => toastService.showSuccessMessage(toast, 'Уровень доступа изменен'))
+                .catch(error => toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка изменения уровня доступа. Попробуйте снова.')));
         }
 
-        await Promise.all(list).then(responses => {
-            if (responses.every(r => r.status === 200)) {
-                toast.add({ severity: 'success', summary: 'Доступы предоставлены', life: 3000 });
-                toast.add({ severity: 'success', summary: 'Уровень доступа изменен', life: 3000 });
-            }
-        });
+        await Promise.all(list);
 
         store.clearPermissions();
     }
@@ -177,21 +176,11 @@ const onFormSubmit = async (e) => {
 
         toGrantPermissions.value.push(info);
         permissions.value.push(info);
-        toast.add({ severity: 'success', summary: 'Пользователь добавлен', life: 3000 });
+        toastService.showSuccessMessage(toast, 'Пользователь добавлен')
         e.reset();
     }
     catch (error) {
-        let message = '';
-        if (error.status < 500) {
-            message = error.response.data.error_description
-        }
-        else if (error.status) {
-            message = 'Непредвиденная ошибка добавления пользователя. Попробуйте снова'
-        }
-        else {
-            message = error.message;
-        }
-        toast.add({ severity: 'error', summary: 'Ошибка', detail: message, life: 3000 });
+        toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка добавления пользователя. Попробуйте снова')
     }
     finally {
         isLoading.value = false
@@ -202,18 +191,16 @@ const copyLink = () => {
     const baseUrl = window.location.origin + '/invite-link/';
     selectedVisibility.value = 'link';
     store.setVisibility(selectedVisibility.value);
-    quizService.setVisibilityLevel(dialogRef.value.data.quizId, { visibility_level: selectedVisibility.value }).then(response => {
+    quizService.setVisibilityLevel(dialogRef.value.data.quizId, { visibility_level: selectedVisibility.value })
+    .then(response => {
         if (response.status === 200) {
-            toast.add({ severity: 'success', summary: 'Уровень доступа изменен', life: 3000 });
+            toastService.showSuccessMessage(toast, 'Уровень доступа изменен')
         }
 
         quizService.getLinkHash(dialogRef.value.data.quizId).then(response => {
             let fullUrl = baseUrl + dialogRef.value.data.quizId + `?invite=${response.data.link}`;
             handleCopy(fullUrl);
-            toast.add({ severity: 'success', summary: 'Ссылка скопирована в буфер обмен', life: 3000 });
-            // copyToClipboard(fullUrl).then(() => {
-            //         toast.add({ severity: 'success', summary: 'Ссылка скопирована в буфер обмен', life: 3000 });
-            //     });
+            toastService.showSuccessMessage(toast, 'Ссылка скопирована в буфер обмен')
         });
     });
 }

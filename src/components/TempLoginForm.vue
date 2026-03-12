@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { ref } from 'vue';
 import { useToast } from 'primevue';
 import { useAuthStore } from '@/stores/auth';
+import toastService from './utils/toastService';
 
 const emit = defineEmits(['forward'])
 const toast = useToast();
@@ -29,18 +30,10 @@ const onFormSubmit = async ({ values }) => {
             login: values.login,
         });
         emit('forward');
-        toast.add({ severity: 'success', summary: 'Авторизация прошла успешно', life: 3000 });
+        toastService.showSuccessMessage(toast, 'Авторизация прошла успешно')
     }
     catch (error) {
-        let message = '';
-        if (error.status < 500) {
-            message = error.response.data.error_description
-        }
-        else {
-            message = 'Непредвиденная ошибка авторизации. Попробуйте снова'
-            console.log(error)
-        }
-        toast.add({ severity: 'error', summary: 'Ошибка авторизации', detail: message, life: 3000 });
+        toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка авторизации. Попробуйте снова')
     }
     finally {
         isLoading.value = false;

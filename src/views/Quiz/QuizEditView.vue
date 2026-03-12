@@ -2,12 +2,14 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useTestStore } from '@/stores/test';
-import { Button, DataTable, Column, InputText, Paginator } from 'primevue';
+import { Button, DataTable, Column, InputText, Paginator, useToast } from 'primevue';
 import quizService from '@/api/services/quizService';
 import PermissionsDialog from '@/components/PermissionsDialog.vue';
 import TakeQuizSettingsDialog from '@/components/TakeQuizSettingsDialog.vue';
 import { useDialog } from 'primevue/usedialog';
+import toastService from '@/components/utils/toastService';
 
+const toast = useToast();
 const store = useTestStore();
 const router = useRouter();
 const dialog = useDialog();
@@ -135,7 +137,7 @@ const savePermissions = async (response, toGrantPermissions, toRevokePermissions
 
   await Promise.all(list).then(responses => {
     if (responses.every(r => r.status === 200)) {
-      toast.add({ severity: 'success', summary: 'Доступы предоставлены', life: 3000 });
+      toastService.showSuccessMessage(toast, 'Доступы предоставлены')
     }
   })
 }
@@ -149,11 +151,7 @@ const setAccess = async (response, access) => {
   if (access) {
     await quizService.setVisibilityLevel(quizId, {
       access_level: access
-    }).then(response => {
-      if (response.status === 200) {
-        toast.add({ severity: 'success', summary: 'Уровень доступа изменен', life: 3000 });
-      }
-    });
+    }).then(() => toastService.showSuccessMessage(toast, 'Уровень доступа изменен'));
   }
 }
 
