@@ -10,7 +10,6 @@ import authService from '@/api/services/authService';
 import userService from '@/api/services/userService';
 import ResetOnChange from '@/components/ResetOnChange.vue';
 import { useRouter } from 'vue-router';
-import { formatDate } from '@/components/utils/dateFormat';
 import toastService from '@/components/utils/toastService';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
@@ -19,6 +18,7 @@ const toast = useToast();
 const confirm = useConfirm();
 const router = useRouter();
 const isLoading = ref(false);
+const userId = ref(null)
 const initialValues = ref({
     login: '',
     firstname: '',
@@ -73,6 +73,7 @@ onMounted(() => {
         .then(response => {
             var user = response.data;
             if (user) {
+                userId.value = user.id
                 initialValues.value = {
                     login: user.login,
                     firstname: user.firstname,
@@ -154,6 +155,10 @@ const deleteAccount = async () => {
     <main>
         <div class="flex flex-col items-left gap-10">
             <h1 class="font-bold text-3xl">Мой профиль</h1>
+            <div>
+                <h2><b>Идентификатор</b></h2>
+                <h3>#{{ userId }}</h3>
+            </div>
             <ResetOnChange :value="initialValues">
                 <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" :validateOnValueUpdate="false"
                     @submit="onFormSubmit" class="flex flex-col gap-5 w-full">
