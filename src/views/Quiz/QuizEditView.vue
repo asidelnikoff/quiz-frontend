@@ -179,10 +179,24 @@ const openTakeSettingsDialog = () => {
       },
       modal: true
     },
+    emits: {
+      onSaveSettings: saveSettings
+    },
     data: {
-      quizId: quizId
+      initialSettings: store.getTakeSettings
     }
   });
+}
+
+const saveSettings = async (settings) => {
+  isLoading.value = true
+  await quizService.updateQuiz(quizId, {
+    settings: settings
+  })
+  .then(() => {
+    toastService.showSuccessMessage(toast, 'Настройки прохождения сохранены')
+  })
+  .finally(() => isLoading.value = false)
 }
 </script>
 

@@ -3,13 +3,10 @@ import { ref, inject } from 'vue';
 import { Button } from 'primevue';
 import LoadingSpinner from './LoadingSpinner.vue';
 import TakeQuizSettings from './TakeQuizSettings.vue';
-import { useTestStore } from '@/stores/test';
-import quizService from '@/api/services/quizService';
-import groupService from '@/api/services/groupService';
 import { formatFromStringTime } from './utils/dateFormat';
 
+const emit = defineEmits(['saveSettings'])
 const dialogRef = inject('dialogRef');
-const testStore = useTestStore();
 
 const isLoading = ref(false)
 
@@ -22,8 +19,7 @@ const takeTime = ref('')
 const fetchSettings = () => {
     try {
         isLoading.value = true
-        let settings = testStore.getTakeSettings;
-
+        let settings = dialogRef.value.data.initialSettings
         if (settings) {
             shuffleQuestions.value = settings.shuffle_questions
             shuffleAnswers.value = settings.shuffle_answers
@@ -44,30 +40,36 @@ const close = () => {
 }
 
 const save = () => {
-    testStore.setTakeSettings({
+    // testStore.setTakeSettings({
+    //     shuffle_questions: shuffleQuestions.value,
+    //     shuffle_answers: shuffleAnswers.value,
+    //     is_exam_mode: isExamMode.value,
+    //     take_time: formatFromStringTime(takeTime.value),
+    //     is_attempt_view_enabled: isAttemptViewEnabled.value
+    // })
+    emit ('saveSettings', {
         shuffle_questions: shuffleQuestions.value,
         shuffle_answers: shuffleAnswers.value,
         is_exam_mode: isExamMode.value,
         take_time: formatFromStringTime(takeTime.value),
         is_attempt_view_enabled: isAttemptViewEnabled.value
     })
-
-    if (dialogRef.value.data.quizId) {
-        if (dialogRef.value.data.groupId) {
-            groupService.updateGroupQuizz({
-                quiz_id: dialogRef.value.data.quizId,
-                settings: testStore.getTakeSettings
-            })
-        }
-        else {
-            quizService.updateQuiz(dialogRef.value.data.quizId, {
-                settings: testStore.getTakeSettings
-            })
-        }
-    }
-    else if (dialogRef.value.data.groupId) {
-        groupService.updateGroupDefaultSettings(testStore.getTakeSettings)
-    }
+    // if (dialogRef.value.data.quizId) {
+    //     if (dialogRef.value.data.groupId) {
+    //         groupService.updateGroupQuizz({
+    //             quiz_id: dialogRef.value.data.quizId,
+    //             settings: testStore.getTakeSettings
+    //         })
+    //     }
+    //     else {
+    //         quizService.updateQuiz(dialogRef.value.data.quizId, {
+    //             settings: testStore.getTakeSettings
+    //         })
+    //     }
+    // }
+    // else if (dialogRef.value.data.groupId) {
+    //     groupService.updateGroupDefaultSettings(testStore.getTakeSettings)
+    // }
     close()
 }
 </script>

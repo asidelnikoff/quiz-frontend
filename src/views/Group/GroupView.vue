@@ -1,22 +1,22 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { Paginator, Button, DataTable, Column, InputText, Select, useConfirm } from 'primevue';
+import { Paginator, Button, DataTable, Column, InputText, Select, useConfirm, useToast } from 'primevue';
 import groupService from '@/api/services/groupService';
 import { useRouter, onBeforeRouteLeave, useRoute } from 'vue-router';
 import { useDialog } from 'primevue/usedialog';
-import { useTestStore } from '@/stores/test';
 import { useAuthStore } from '@/stores/auth';
 import TestsTable from '@/components/TestsTable.vue';
 import TakeQuizSettingsDialog from '@/components/TakeQuizSettingsDialog.vue';
 import AddMemberDialog from '@/components/AddMemberDialog.vue';
 import AddQuizzesDialog from '@/components/AddQuizzesDialog.vue';
+import toastService from '@/components/utils/toastService';
 
 const dialog = useDialog();
 const router = useRouter()
-const testStore = useTestStore()
 const authStore = useAuthStore()
 const confirm = useConfirm()
 const route = useRoute()
+const toast = useToast()
 const groupId = route.params.id
 
 const isNameEditing = ref(false)
@@ -37,6 +37,8 @@ const totalMembersItems = ref(0);
 const currentMembersPage = computed(() => first.value / perPage.value);
 const perPageMembers = ref(20);
 const membersSearchQuery = ref(null)
+
+const isDefaultSettingsButtonDisabled = ref(false)
 
 const groupName = ref(null)
 
@@ -163,38 +165,62 @@ const onBlur = () => {
     showError.value = !groupName.value?.trim(); // Показать ошибку, если поле пустое после потери фокуса
 };
 
-const openDefaultSettingsDialog = () => {
-    isTestsLoading.value = true
+const openDefaultTakeQuizSettingsDialog = () => {
+    isDefaultSettingsButtonDisabled.value = true
     groupService.getGroupDefaultSettings().then(response => {
-        openTakeSettingsDialog1(response.data, null)
-        isTestsLoading.value = false
+        openTakeSettingsDialog(response.data, null)
+        isDefaultSettingsButtonDisabled.value = false
     })
 }
 
-const openTakeSettingsDialog = (id) => {
+const openTakeQuizSettingsDialog = (id) => {
     isTestsLoading.value = true
     groupService.getGroupQuizTakeSettings(id.value).then(response => {
-        openTakeSettingsDialog1(response.data, id.value)
+        openTakeSettingsDialog(response.data, id.value)
         isTestsLoading.value = false
     })
 }
 
-const openTakeSettingsDialog1 = (settings, quizId) => {
+const openTakeSettingsDialog = (settings, quizId) => {
     console.log(settings)
-        testStore.setTakeSettings(settings)
-        dialog.open(TakeQuizSettingsDialog, {
-            props: {
-                header: 'Настройка прохождения',
-                style: {
-                    width: '50vw',
-                },
-                modal: true,
+    dialog.open(TakeQuizSettingsDialog, {
+        props: {
+            header: 'Настройка прохождения',
+            style: {
+                width: '50vw',
             },
-            data: {
-                quizId: quizId,
-                groupId: groupId
-            }
+            modal: true,
+        },
+        emits: {
+            onSaveSettings: (settings) => saveSettings(settings, quizId)
+        },
+        data: {
+            initialSettings: settings
+        }
     });
+}
+
+const saveSettings = async (settings, quizId) => {
+    let task = null;
+    if (quizId) {
+        isTestsLoading.value = true
+        task = groupService.updateGroupQuizz({
+            quiz_id: quizId,
+            settings: settings
+        })
+    }
+    else {
+        isDefaultSettingsButtonDisabled.value = true
+        task = groupService.updateGroupDefaultSettings(settings)
+    }
+    await task
+        .then(() => {
+            toastService.showSuccessMessage(toast, 'Настройки прохождения сохранены')
+        })
+        .finally(() => {
+            isDefaultSettingsButtonDisabled.value = false
+            isTestsLoading.value = false
+        })
 }
 
 const onRoleChange = (id, newRole) => {
@@ -361,14 +387,14 @@ const deleteGroup = () => {
                 <div class="flex flex-row justify-between w-full">
                     <h3><b>Тесты группы</b></h3>
                     <div v-if="isQuizListEditingEnabled" class="flex flex-row gap-5">
-                        <Button label="Настроить прохождение" icon="pi pi-objects-column" variant="outlined" iconPos="right"
-                            @click="openDefaultSettingsDialog"></Button>
-                        <Button label="Добавить тесты" variant="outlined"
-                            icon="pi pi-plus-circle" iconPos="right" @click="addTest"></Button>
+                        <Button :disabled="isDefaultSettingsButtonDisabled" label="Настроить прохождение" icon="pi pi-objects-column" variant="outlined"
+                            iconPos="right" @click="openDefaultTakeQuizSettingsDialog"></Button>
+                        <Button label="Добавить тесты" variant="outlined" icon="pi pi-plus-circle" iconPos="right"
+                            @click="addTest"></Button>
                     </div>
                 </div>
                 <TestsTable :tests="tests" :isLoading="isTestsLoading" :first="first" :isReadOnly="true"
-                    @fetchTests="fetchTests" @goToTest="goToTest" @editTakeTestSettings="openTakeSettingsDialog"
+                    @fetchTests="fetchTests" @goToTest="goToTest" @editTakeTestSettings="openTakeQuizSettingsDialog"
                     @deleteTestFromGroup="deleteQuizDialog" mode="group" />
                 <div class="flex justify-between items-center">
                     <span></span>
@@ -403,8 +429,7 @@ const deleteGroup = () => {
                                 <label v-if="data.role === 'creator' || !isMembersListEditingEnabled">{{
                                     roles[data.role] }}</label>
                                 <Select v-else :options="rolesOptions" option-value="value" option-label="description"
-                                    fluid v-model="data.role"
-                                    @change="onRoleChange(data.id, data.role)"></Select>
+                                    fluid v-model="data.role" @change="onRoleChange(data.id, data.role)"></Select>
                             </div>
                         </template>
                     </Column>
