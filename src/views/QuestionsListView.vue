@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Button, DataTable, Column, InputText, useConfirm, Paginator } from 'primevue';
 import quizService from '@/api/services/quizService';
+import QuestionsTable from '@/components/QuestionsTable.vue';
 
 const router = useRouter();
 const questions = ref([]);
@@ -93,43 +94,6 @@ const deleteQuestion = async (id) => {
 
 <template>
   <main>
-    <div class="flex flex-col items-left gap-10">
-      <h1 class="font-bold text-3xl">Мои вопросы</h1>
-      <div class="flex flex-col gap-5">
-        <InputText v-model="searchQuery" fluid placeholder="Введите текст вопроса" />
-        <DataTable ref="table" :value="questions" :loading="isLoading" scrollable scrollHeight="58vh" style="max-height: 58vh;" :virtualScrollerOptions="{ itemSize: 67 }">
-          <template #paginatorstart>
-            <span></span>
-          </template>
-          <template #paginatorend>
-          </template>
-          <template #empty> Нет вопросов для отображения </template>
-          <Column header="#">
-            <template #body="slotProps">
-              {{ slotProps.index + 1 + first }}
-            </template>
-          </Column>
-          <Column field="question" header="Вопрос"></Column>
-          <Column>
-            <template #body="slotProps">
-              <div class="flex justify-end">
-                <Button @click="editQuestion(slotProps.data.id)" variant="text" icon="pi pi-pencil"></Button>
-                <Button @click="openDeleteDialog(slotProps.data.id, slotProps.data.question)" variant="text"
-                  icon="pi pi-trash"></Button>
-              </div>
-            </template>
-          </Column>
-        </DataTable>
-        <div class="flex justify-between items-center">
-          <span></span>
-          <Paginator :totalRecords="totalItems" v-model:rows="perPage" v-model:first="first"
-            :rowsPerPageOptions="[20, 40, 60, 100]" />
-          <div>
-            <Button @click="goToCreate" variant="outlined" label="Создать вопрос" icon="pi pi-plus-circle"
-              iconPos="right"></Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <QuestionsTable mode="view" />
   </main>
 </template>

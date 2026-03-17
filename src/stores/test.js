@@ -3,7 +3,6 @@ import { computed, ref } from 'vue';
 
 export const useTestStore = defineStore('test', () => {
   const isEditing = ref(false);
-  const currentTestName = ref('');
   const selectedQuestions = ref([]);
 
   const permissions = ref([]);
@@ -17,7 +16,6 @@ export const useTestStore = defineStore('test', () => {
   const takeSettings = ref(null)
 
   const getIsEditing = computed(() => isEditing.value);
-  const getCurentTestName = computed(() => currentTestName.value);
   const getSelectedQuestions = computed(() => selectedQuestions.value);
   const getCurrentPermissions = computed(() => permissions.value);
   const getInitialPermissions = computed(() => initialPermissions.value);
@@ -29,10 +27,6 @@ export const useTestStore = defineStore('test', () => {
 
   function setIsEditing(newIsEditing) {
     isEditing.value = newIsEditing;
-  };
-  
-  function setTestName(testName) {
-    currentTestName.value = testName;
   };
   
   function setSelectedQuestions(questions) {
@@ -69,11 +63,9 @@ export const useTestStore = defineStore('test', () => {
   
   function clear() {
     selectedQuestions.value = [];
-    currentTestName.value = '';
     isEditing.value = false;
     visibility.value = null;
     takeSettings.value = null;
-
 
     clearPermissions();
   };
@@ -87,7 +79,6 @@ export const useTestStore = defineStore('test', () => {
 
   return {
     getIsEditing,
-    getCurentTestName,
     getSelectedQuestions,
     getCurrentPermissions,
     getInitialPermissions,
@@ -98,7 +89,6 @@ export const useTestStore = defineStore('test', () => {
     getTakeSettings,
 
     setIsEditing,
-    setTestName,
     setSelectedQuestions,
     setInitialPermissions,
     setCurrentPermissions,
