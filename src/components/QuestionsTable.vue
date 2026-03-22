@@ -12,15 +12,16 @@ const isSelectingMode = computed(() => mode.value === 'select')
 const isViewMode = computed(() => mode.value === 'view')
 
 const selectedQuestions = ref([]);
+const questions = ref([]);
+const isLoading = ref(false);
+const first = ref(0);
+
 const router = useRouter();
 const route = useRoute();
-const questions = ref([]);
 const totalItems = ref(0);
 const currentPage = computed(() => (first.value / perPage.value) + 1);
 const perPage = ref(20);
-const first = ref(0);
 const searchQuery = ref(null);
-const isLoading = ref(false);
 const confirm = useConfirm();
 const store = useTestStore();
 const toast = useToast()
@@ -30,8 +31,7 @@ const table = ref(null)
 const fetchQuestions = async () => {
     isLoading.value = true;
     try {
-        console.log('got in fetch', store.getSelectedQuestions);
-        if (isSelectingMode) {
+        if (isSelectingMode.value) {
             await loadSelectedQuestions()
         }
         const response = await quizService.getQuestionsList({
@@ -54,18 +54,15 @@ const fetchQuestions = async () => {
 
 const loadSelectedQuestions = async () => {
     if (store.getIsEditing) {
-        console.log('im editing')
         store.setSelectedQuestions(selectedQuestions.value);
     }
+    console.log('mode', isSelectingMode.value)
+    console.log('selected questions', store.getSelectedQuestions)
     selectedQuestions.value = store.getSelectedQuestions;
-    console.log(selectedQuestions.value)
-    console.log(questions.value)
 };
 
-// Initial fetch
 fetchQuestions();
 
-// Watch for page changes and refetch
 watch([first, perPage], () => {
     fetchQuestions();
 });
@@ -74,7 +71,6 @@ watch(searchQuery, () => {
     fetchQuestions();
 })
 
-// Watch for empty page and switch to previous page
 watch([questions, totalItems], ([newQuestions, newTotalItems]) => {
     if (newQuestions.length === 0 && currentPage.value > 1 && newTotalItems > 0) {
         currentPage.value = Math.max(1, currentPage.value - 1);
@@ -83,13 +79,12 @@ watch([questions, totalItems], ([newQuestions, newTotalItems]) => {
 });
 
 watch(selectedQuestions, () => {
-    if (!isSelectingMode) {
+    if (!isSelectingMode.value) {
         return;
     }
     store.setIsEditing(true);
 });
 
-// Navigation methods
 const goToCreate = () => {
     updateSelectedQuestions()
     router.push('/create-question');
@@ -101,7 +96,7 @@ const editQuestion = (id) => {
 };
 
 const addSelectedQuestions = async () => {
-    if (!isSelectingMode) {
+    if (!isSelectingMode.value) {
         return;
     }
     isLoading.value = true;
@@ -144,7 +139,7 @@ const deleteQuestion = async (id) => {
 };
 
 const goBack = () => {
-    if (isSelectingMode) {
+    if (isSelectingMode.value) {
         store.setIsEditing(false)
     }
 
@@ -152,18 +147,16 @@ const goBack = () => {
 }
 
 const updateSelectedQuestions = () => {
-    if (!isSelectingMode) {
+    if (!isSelectingMode.value) {
         return
     }
-    console.log('updating selected questions')
+
     store.setIsEditing(false);
     store.setSelectedQuestions(selectedQuestions.value);
 }
 </script>
 
 <template>
-    <div class="flex flex-col items-left gap-10">
-        <h1 class="font-bold text-3xl">{{ isViewMode ? 'Мои вопросы' : 'Выбор вопросов' }}</h1>
         <div class="flex flex-col gap-5">
             <InputText v-model="searchQuery" fluid placeholder="Введите текст вопроса" />
             <DataTable ref="table" v-model:selection="selectedQuestions" :value="questions" :loading="isLoading"
@@ -183,8 +176,10 @@ const updateSelectedQuestions = () => {
                 <Column field="question" header="Вопрос"></Column>
                 <Column>
                     <template #header>
-                        <Button v-if="isSelectingMode" @click="goToCreate" variant="outlined"
+                        <div v-if="isSelectingMode" class="flex justify-end w-full">
+                        <Button @click="goToCreate" variant="outlined"
                             label="Создать вопрос" icon="pi pi-plus-circle" iconPos="right"></Button>
+                        </div>
                     </template>
                     <template #body="slotProps">
                         <div class="flex justify-end">
@@ -214,5 +209,4 @@ const updateSelectedQuestions = () => {
                 </div>
             </div>
         </div>
-    </div>
 </template>

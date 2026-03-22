@@ -1,6 +1,6 @@
 <script setup>
 import { Card, Checkbox, Divider, RadioButton, InputText } from 'primevue';
-import { computed, ref, warn, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps(['canAnswer'])
 

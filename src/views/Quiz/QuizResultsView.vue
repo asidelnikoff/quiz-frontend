@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import { Button, Card, Divider } from 'primevue';
 import quizService from '@/api/services/quizService';
 import { useSessionStore } from '@/stores/session';
@@ -34,10 +34,19 @@ onMounted(async () => {
   await fetchResults();
 });
 
+onBeforeRouteLeave((to, _) => {
+  console.log(to.name)
+    if (to.name !== 'test-results' && to.name !== 'test' && to.name !== 'group-test') {
+      console.log('clearing')
+        store.clear()
+        console.log('after clear', store.getSettings())
+    }
+})
+
 const fetchResults = async () => {
   isLoading.value = true;
   try {
-    const test = store.getTest;
+    const test = store.getTest();
     results.value = (await quizService.moveQuizSessionToResults(store.getSessionId())
       .catch(error => { null }))?.data?.data;
     console.log(results.value);
@@ -47,8 +56,8 @@ const fetchResults = async () => {
     correctAnswers.value = results.value.correct_answers;
     testResult.value = results.value.result.toFixed(2);
     timeSpent.value = formatFromMillisecondsTime(results.value.time_spent);
-    if (store.getSettings) {
-      isAttemptViewButtonEnabled.value = store.getSettings.is_attempt_view_enabled
+    if (store.getSettings()) {
+      isAttemptViewButtonEnabled.value = store.getSettings().is_attempt_view_enabled
     }
   } catch (error) {
     console.error('Error fetching test:', error);
@@ -59,7 +68,7 @@ const fetchResults = async () => {
 };
 
 const restartTest = () => {
-  const id = store.getTest.id;
+  const id = store.getTest().id;
   quizService.endQuizSession(store.getSessionId());
   store.removeSession();
   let route = `/test/${id}`;

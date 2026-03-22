@@ -1,38 +1,38 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { Button, ProgressBar, useConfirm } from 'primevue';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useConfirm } from 'primevue';
 import quizService from '@/api/services/quizService';
 import { useSessionStore } from '@/stores/session';
 import { hideSidebar } from '@/components/Sidepanel/state';
-import Question from '@/components/Question.vue';
-import SideQuestionsListbox from '@/components/SideQuestionsListbox.vue';
 import { useToast } from 'primevue';
 import toastService from '@/components/utils/toastService';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import Quiz from '@/components/Quiz.vue';
 
 // State
-var testName = ref('');
+var quizName = ref('');
 const questions = ref([]);
 const selectedQuestion = ref(null);
-const currentQuestionIndex = computed(() => selectedQuestion.value ? selectedQuestion.value.index : 0);
 const selectedAnswers = ref([]);
+const currentQuestion = ref(null);
+const currentQuestionIndex = computed(() => selectedQuestion.value ? selectedQuestion.value.index : 0);
+const unansweredCount = computed(() => questions.value.filter(q => !q.questionData.is_answered).length);
 const isLoading = ref(false);
+
 const router = useRouter();
-const store = useSessionStore();
 const confirm = useConfirm();
 const toast = useToast()
+const store = useSessionStore();
 
-hideSidebar();
+hideSidebar()
 
 onMounted(async () => {
   isLoading.value = true;
   try {
     const session = ref(null);
     console.log('Stored session', store.getSessionId());
-    console.log(store.getTest);
-    let test = store.getTest;
-    test = store.getTest;
+    console.log(store.getTest());
+    let test = store.getTest();
     if (store.getSessionId()) {
       session.value = (await quizService.getSession(store.getSessionId()).catch(error => {
         toastService.showBackendErrorMessage(toast, error)
@@ -43,7 +43,7 @@ onMounted(async () => {
     }
     else {
       const testId = test.id;
-      let settings = store.getSettings;
+      let settings = store.getSettings();
       let invite = store.getInviteHash();
       session.value = (await quizService.startQuizSession({
         quiz_id: testId,
@@ -56,7 +56,7 @@ onMounted(async () => {
     }
 
     if (session.value) {
-      testName = test.name;
+      quizName = test.name;
       for (let i = 0; i < test.questions_number; i++) {
         var isAnswered = i in session.value.answered_questions;
         var isCorrect = false;
@@ -77,9 +77,11 @@ onMounted(async () => {
   }
 });
 
-const currentQuestion = ref(null);
-const progress = computed(() => (!isLoading.value ? ((currentQuestionIndex.value + 1) / questions.value.length) * 100 : 0));
-const unansweredCount = computed(() => questions.value.filter(q => !q.questionData.is_answered).length);
+onBeforeRouteLeave((to, _) => {
+    if (to.name !== 'test-results' && to.name !== 'test' && to.name !== 'group-test') {
+        store.clear()
+    }
+})
 
 watch(selectedQuestion, async () => {
   await setCurrentQuestion(selectedQuestion.value.index);
@@ -145,32 +147,9 @@ const confirmCompleteTest = () => {
 
 <template>
   <main>
-    <div class="flex flex-col gap-5">
-      <div class="flex justify-between items-center">
-        <h1 class="font-bold text-3xl py-2">{{ testName }}</h1>
-        <Button @click="completeTest" variant="outlined" label="Завершить" icon="pi pi-times" iconPos="right"></Button>
-      </div>
-
-      <div>
-        <ProgressBar :value="progress" style="height: 0.5rem;">{{}}</ProgressBar>
-        <p class="text-right">
-          {{ currentQuestionIndex + 1 }}/{{ questions.length }}
-        </p>
-      </div>
-
-      <div class="flex flex-col justify-between md:flex-row gap-6">
-        <div class="w-full">
-          <Question v-model:selectedAnswers="selectedAnswers" v-model:currentQuestion="currentQuestion"
-            :canAnswer="true" />
-          <div class="flex justify-end items-center">
-            <Button @click="submitAnswer" :disabled="!currentQuestion || selectedAnswers.length === 0" label="Ответить"
-              icon="pi pi-check" iconPos="right"></Button>
-          </div>
-        </div>
-        <SideQuestionsListbox class="w-full md:w-1/3" v-model:selectedQuestion="selectedQuestion"
-          :currentQuestionIndex="currentQuestionIndex" :questions="questions" />
-      </div>
-    </div>
-    <LoadingSpinner :isLoading="isLoading"/>
+    <Quiz mode="answer" :quizName="quizName" :questions="questions" v-model:selectedQuestion="selectedQuestion"
+      v-model:selectedAnswers="selectedAnswers" v-model:currentQuestion="currentQuestion" v-model:isLoading="isLoading" 
+      @complete="completeTest"
+      @submit="submitAnswer"/>
   </main>
 </template>

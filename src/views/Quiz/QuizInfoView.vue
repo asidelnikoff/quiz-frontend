@@ -39,7 +39,8 @@ const fillSettings = (settings) => {
 }
 
 onMounted(async () => {
-  let storedSettings = store.getSettings;
+  console.log('stored settings', store.getSettings())
+  let storedSettings = store.getSettings();
   if (storedSettings) {
     fillSettings(storedSettings)
   }

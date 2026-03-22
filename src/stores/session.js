@@ -15,19 +15,16 @@ export const useSessionStore = defineStore('session', () =>
   if(localStorageTest.value) {
     test.value = JSON.parse(localStorageTest.value);
   }
-  const inviteHash = ref('');
   
   function getSessionId() { return localStorage.getItem('testSessionId'); };
   function getInviteHash() { return localStorage.getItem('invite'); }
   function getGroupId() { return localStorage.getItem('groupId'); }
-  const getTest = computed(() => test.value);
-  const getSettings = computed(() => settings.value)
+  function getTest() { return test.value };
+  function getSettings() { return settings.value }
 
   function saveTest(savingTest) {
-    console.log('Saving test');
     test.value = savingTest;
     localStorage.setItem('test', JSON.stringify(test.value));
-    console.log('Saved test');
   }
 
   function saveGroupId(groupId) {
@@ -35,17 +32,25 @@ export const useSessionStore = defineStore('session', () =>
   }
 
   function startSession(sessionId) {
-    console.log('Saving sessionId', localStorage.getItem('testSessionId'));
     localStorage.setItem('testSessionId', sessionId);
-    console.log('Saved sessiondId', localStorage.getItem('testSessionId'));
   }
 
   function clear() {
-    localStorage.removeItem('test');
+    removeTest()
     localStorage.removeItem('testSessionId');
     localStorage.removeItem('invite');
-    localStorage.removeItem('settings')
+    removeSettings()
     localStorage.removeItem('groupId')
+  }
+
+  function removeSettings() {
+    localStorage.removeItem('settings')
+    settings.value = null
+  }
+
+  function removeTest() {
+    localStorage.removeItem('test');
+    test.value = null
   }
 
   function removeSession() {

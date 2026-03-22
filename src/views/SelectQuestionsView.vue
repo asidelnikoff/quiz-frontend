@@ -14,6 +14,9 @@ onUnmounted(() => {
 
 <template>
   <main>
-    <QuestionsTable mode="select"/>
+    <div class="flex flex-col items-left gap-10">
+        <h1 class="font-bold text-3xl">Выбор вопросов</h1>
+        <QuestionsTable mode="select"/>
+    </div>
   </main>
 </template>

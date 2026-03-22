@@ -1,13 +1,14 @@
 <script setup>
-import { ref, computed, onMounted, watch, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useTestStore } from '@/stores/test';
-import { Button, DataTable, Column, InputText, Paginator, useToast } from 'primevue';
+import { Button, DataTable, Column, InputText, useToast } from 'primevue';
 import quizService from '@/api/services/quizService';
 import PermissionsDialog from '@/components/PermissionsDialog.vue';
 import TakeQuizSettingsDialog from '@/components/TakeQuizSettingsDialog.vue';
 import { useDialog } from 'primevue/usedialog';
 import toastService from '@/components/utils/toastService';
+import { onBeforeRouteLeave } from 'vue-router';
 
 const toast = useToast();
 const store = useTestStore();
@@ -18,8 +19,6 @@ const quizId = route.params.id;
 
 const testName = ref('');
 const questions = ref([]);
-const perPage = ref(20);
-const first = ref(0);
 const isLoading = ref(false);
 const showError = ref(false); // Состояние для отображения ошибки
 const isNameEditing = ref(false)
@@ -44,8 +43,10 @@ onMounted(async () => {
   }
 });
 
-onUnmounted(() => {
-  store.clear()
+onBeforeRouteLeave((to, _) => {
+    if (to.name !== 'select-questions') {
+        store.clear()
+    }
 })
 
 const onFocus = () => {
@@ -58,7 +59,6 @@ const onBlur = () => {
 
 const goToSelectQuestions = () => {
   store.setSelectedQuestions(questions.value);
-  console.log('coming with', store.getSelectedQuestions)
   var toGo = `/select-questions/`;
   if (quizId) {
     toGo += `${quizId}`;
@@ -181,20 +181,22 @@ const saveSettings = async (settings) => {
       <div class="flex flex-col gap-5">
         <Button label="Настроить прохождение" icon="pi pi-objects-column" variant="outlined" iconPos="right"
           @click="openTakeSettingsDialog"></Button>
-        <DataTable :value="questions" :loading="isLoading" scrollable scrollHeight="flex" style="max-height: 52vh;">
+        <DataTable :value="questions" :loading="isLoading" scrollable scrollHeight="60vh">
           <template #empty> Нет прикрепленных вопросов </template>
           <Column header="#">
             <template #body="slotProps">
-              {{ slotProps.index + 1 + first }}
+              {{ slotProps.index + 1 }}
             </template>
           </Column>
           <Column field="question" header="Вопрос"></Column>
-          <Column headerClass="flex justify-end" class="w-10% !text-end">
+          <Column class="w-10%">
             <template #header>
-              <Button @click="goToSelectQuestions" variant="outlined" label="Прикрепить вопросы" icon="pi pi-paperclip"
-                iconPos="right"></Button>
-              <Button @click="editQuestionsList" variant="outlined" label="Открепить вопросы" icon="pi pi-trash"
-                iconPos="right"></Button>
+              <div class="flex flex-col gap-2 justify-end w-full">
+                <Button @click="goToSelectQuestions" variant="outlined" label="Прикрепить"
+                  icon="pi pi-paperclip" iconPos="right"></Button>
+                <Button @click="editQuestionsList" variant="outlined" label="Открепить" icon="pi pi-trash"
+                  iconPos="right"></Button>
+              </div>
             </template>
             <template #body="slotProps">
               <div class="flex justify-end">
@@ -208,15 +210,9 @@ const saveSettings = async (settings) => {
             </template>
           </Column>
         </DataTable>
-        <div class="flex justify-between items-center">
-          <span></span>
-          <Paginator :totalRecords="questions.length" v-model:rows="perPage" v-model:first="first"
-            :rowsPerPageOptions="[20, 40, 60, 100]" />
-          <div v-if="isQuestionsListEditing" class="flex justify-end gap-2">
-            <Button @click="cancelQuestionsListEditing" variant="outlined" label="Отмена"></Button>
-            <Button @click="saveQuestionsList" label="Сохранить" icon="pi pi-check" iconPos="right"></Button>
-          </div>
-          <span v-else></span>
+        <div v-if="isQuestionsListEditing" class="flex justify-end gap-2">
+          <Button @click="cancelQuestionsListEditing" variant="outlined" label="Отмена"></Button>
+          <Button @click="saveQuestionsList" label="Сохранить" icon="pi pi-check" iconPos="right"></Button>
         </div>
       </div>
     </div>

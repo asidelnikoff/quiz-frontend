@@ -40,13 +40,6 @@ const close = () => {
 }
 
 const save = () => {
-    // testStore.setTakeSettings({
-    //     shuffle_questions: shuffleQuestions.value,
-    //     shuffle_answers: shuffleAnswers.value,
-    //     is_exam_mode: isExamMode.value,
-    //     take_time: formatFromStringTime(takeTime.value),
-    //     is_attempt_view_enabled: isAttemptViewEnabled.value
-    // })
     emit ('saveSettings', {
         shuffle_questions: shuffleQuestions.value,
         shuffle_answers: shuffleAnswers.value,
@@ -54,22 +47,6 @@ const save = () => {
         take_time: formatFromStringTime(takeTime.value),
         is_attempt_view_enabled: isAttemptViewEnabled.value
     })
-    // if (dialogRef.value.data.quizId) {
-    //     if (dialogRef.value.data.groupId) {
-    //         groupService.updateGroupQuizz({
-    //             quiz_id: dialogRef.value.data.quizId,
-    //             settings: testStore.getTakeSettings
-    //         })
-    //     }
-    //     else {
-    //         quizService.updateQuiz(dialogRef.value.data.quizId, {
-    //             settings: testStore.getTakeSettings
-    //         })
-    //     }
-    // }
-    // else if (dialogRef.value.data.groupId) {
-    //     groupService.updateGroupDefaultSettings(testStore.getTakeSettings)
-    // }
     close()
 }
 </script>

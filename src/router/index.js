@@ -65,11 +65,6 @@ const router = createRouter({
     },
     {
       path: '/select-questions/:id',
-      name: 'select-questions-id',
-      component: () => import('../views/SelectQuestionsView.vue')
-    },
-    {
-      path: '/select-questions',
       name: 'select-questions',
       component: () => import('../views/SelectQuestionsView.vue')
     },
