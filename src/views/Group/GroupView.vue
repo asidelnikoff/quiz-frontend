@@ -10,6 +10,7 @@ import TakeQuizSettingsDialog from '@/components/TakeQuizSettingsDialog.vue';
 import AddMemberDialog from '@/components/AddMemberDialog.vue';
 import AddQuizzesDialog from '@/components/AddQuizzesDialog.vue';
 import toastService from '@/components/utils/toastService';
+import { useGroupStore } from '@/stores/group';
 
 const dialog = useDialog();
 const router = useRouter()
@@ -17,6 +18,7 @@ const authStore = useAuthStore()
 const confirm = useConfirm()
 const route = useRoute()
 const toast = useToast()
+const groupStore = useGroupStore()
 const groupId = route.params.id
 
 const isNameEditing = ref(false)
@@ -68,7 +70,7 @@ const authToGroup = async () => {
 }
 
 onBeforeRouteLeave((to, _) => {
-    if (to.name !== 'group-test') {
+    if (to.name !== 'group-test' && to.name !== 'group-select-quizzes') {
         authStore.groupLogout()
     }
 })
@@ -277,26 +279,30 @@ const removeMember = (firstname, lastname, id) => {
 }
 const deleteMember = (id) => {
     isMembersLoading.value = true;
-    groupService.deleteMembersFromGroup([id]).then(_ => members.value = members.value.filter(a => a.id != id)).finally(_ => isMembersLoading.value = false)
-
+    groupService.deleteMembersFromGroup([id])
+        .then(_ => members.value = members.value.filter(a => a.id != id))
+        .finally(_ => isMembersLoading.value = false)
 }
 
 const addTest = () => {
-    dialog.open(AddQuizzesDialog, {
-        props: {
-            header: 'Добавление тестов',
-            style: {
-                width: '50vw',
-            },
-            modal: true
-        },
-        emits: {
-            onTestAdd: () => fetchTests({ not_changed: true })
-        },
-        data: {
-            groupId: groupId
-        }
-    });
+    console.log(tests.value)
+    groupStore.setIsEditing(false)
+    groupStore.setInitialTests(tests.value.map(a => {
+        return { 
+            id: a.id, 
+            questions_number: a.questions_number, 
+            name: a.name, 
+            created_at: a.created_at }
+    }))
+    groupStore.setSelectedTests(tests.value.map(a => {
+        return { 
+            id: a.id, 
+            questions_number: a.questions_number, 
+            name: a.name, 
+            created_at: a.created_at }
+    }))
+    console.log(groupStore.getSelectedTests)
+    router.push({ name: 'group-select-quizzes' })
 }
 const deleteQuizDialog = (params) => {
     console.log('deleting quiz from group', params.name)

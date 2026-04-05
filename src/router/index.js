@@ -108,6 +108,11 @@ const router = createRouter({
       path: '/group/:group_id/test/:id',
       name: 'group-test',
       component: () => import('../views/Quiz/QuizInfoView.vue')
+    },
+    {
+      path: '/group/select-quizzes',
+      name: 'group-select-quizzes',
+      component: () => import('../views/Quiz/SelectQuizView.vue')
     }
   ],
 })

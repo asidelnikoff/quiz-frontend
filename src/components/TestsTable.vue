@@ -14,6 +14,8 @@ defineExpose({
 })
 
 const tests = defineModel('tests')
+const selectedTests = defineModel('selectedTests')
+const initalTests = defineModel('initialTests')
 const searchQuery = ref(null)
 const isLoading = defineModel('isLoading')
 const isReadOnly = defineModel('isReadOnly')
@@ -40,10 +42,6 @@ const editTakeTestSettings = (id) => {
 }
 const deleteTestFromGroup = (id, name) => {
   emit('deleteTestFromGroup', { id: id, name: name })
-}
-
-const selectTest = (id) => {
-  emit('selectQuiz', id)
 }
 
 const fetchTests = () => {
@@ -73,14 +71,37 @@ const openDeleteDialog = (id, name) => {
   });
 };
 
+watch(selectedTests, () => {
+  let toPush = initalTests.value.filter(a => !selectedTests.value.some(b => b.id === a.id))
+  toPush.forEach(element => {
+    selectedTests.value.push(element)
+  })
+})
+
+function disableRow(row) {
+    if (!initalTests.value) {
+      return ''
+    }
+    
+    return initalTests.value.some(a => a.id === row.id) ? 'p-disabled' : '';
+}
+
 </script>
 
 <template>
   <div class="flex flex-col gap-5">
     <InputText v-model="searchQuery" fluid placeholder="Введите название теста" />
-    <DataTable ref="table" :value="tests" :loading="isLoading" scrollable scrollHeight="58vh" style="max-height: 58vh;" :virtualScrollerOptions="{ itemSize: 67 }">
+    <DataTable 
+    ref="table" 
+    :value="tests"
+     v-model:selection="selectedTests" 
+     :loading="isLoading" 
+     scrollable scrollHeight="58vh" style="max-height: 58vh;"
+      :virtualScrollerOptions="{ itemSize: 67 }"
+      :rowClass="disableRow">
       <template #empty> Нет тестов для отображения </template>
-      <Column header="#">
+      <Column v-if="isSelectingMode" selectionMode="multiple" headerStyle="width: 3rem"></Column>
+      <Column v-else header="#">
         <template #body="slotProps">
           {{ slotProps.index + 1 + first }}
         </template>
@@ -110,9 +131,7 @@ const openDeleteDialog = (id, name) => {
       </Column>
       <Column field="id" class="!text-end">
         <template #body="slotProps">
-          <Button v-if="isSelectingMode" label="Добавить" icon="pi pi-plus"
-            @click="selectTest(slotProps.data.id)"></Button>
-          <Button v-else @click="goToTest(slotProps.data.id)" label="Выполнить" icon="pi pi-play-circle"
+          <Button v-if="!isSelectingMode" @click="goToTest(slotProps.data.id)" label="Выполнить" icon="pi pi-play-circle"
             iconPos="right"></Button>
         </template>
       </Column>
