@@ -106,7 +106,7 @@ const onFormSubmit = async ({ values, valid }) => {
             && updated.lastname === null
             && newPatronymic === initialValues.value.patronymic
             && updated.password === null) {
-            toastService.showInfoMessage('Данные идентичны')
+            toastService.showInfoMessage(toast, 'Данные идентичны')
             return;
         }
 
@@ -115,7 +115,7 @@ const onFormSubmit = async ({ values, valid }) => {
             await authStore.refresh()
         }
 
-        toastService.showSuccessMessage('Данные успешно обновлены')
+        toastService.showSuccessMessage(toast, 'Данные успешно обновлены')
     }
     catch (error) {
         toastService.showBackendErrorMessage(toast, error, 'Непредвиденная ошибка обновления. Попробуйте снова')
