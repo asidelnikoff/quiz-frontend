@@ -10,7 +10,7 @@ import authService from '@/api/services/authService';
 import { hideSidebar } from '@/components/Sidepanel/state';
 import { hashSHA256 } from '@/components/utils/hash';
 import toastService from '@/components/utils/toastService';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner.vue';
 
 hideSidebar();
 

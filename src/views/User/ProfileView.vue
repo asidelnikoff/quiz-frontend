@@ -11,7 +11,7 @@ import userService from '@/api/services/userService';
 import ResetOnChange from '@/components/ResetOnChange.vue';
 import { useRouter } from 'vue-router';
 import toastService from '@/components/utils/toastService';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner.vue';
 
 const authStore = useAuthStore()
 const toast = useToast();

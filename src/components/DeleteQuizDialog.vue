@@ -1,7 +1,7 @@
 <script setup>
 import { inject, ref } from 'vue';
 import { Button, Checkbox } from 'primevue';
-import LoadingSpinner from './LoadingSpinner.vue';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner.vue';
 import { useToast } from 'primevue';
 import quizService from '@/api/services/quizService';
 import toastService from './utils/toastService';

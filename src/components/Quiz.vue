@@ -2,7 +2,7 @@
 import { Button, ProgressBar } from 'primevue';
 import Question from './Question.vue';
 import SideQuestionsListbox from './SideQuestionsListbox.vue';
-import LoadingSpinner from './LoadingSpinner.vue';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner.vue';
 import { computed } from 'vue';
 
 const emit = defineEmits('complete', 'submit')

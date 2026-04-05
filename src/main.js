@@ -11,6 +11,7 @@ import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import router from './router';
 import { createPinia } from 'pinia';
+import { showSpinner, hideSpinner } from './components/LoadingSpinner/state';
 
 const pinia = createPinia();
 
@@ -91,4 +92,12 @@ app.use(DialogService);
 app.use(router);
 app.use(pinia);
 app.directive('tooltip', Tooltip);
+router.beforeEach((to, from, next) => {
+    showSpinner()
+    next()
+})
+
+router.afterEach(() => {
+  hideSpinner()
+})
 app.mount('#app');

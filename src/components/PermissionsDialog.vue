@@ -1,6 +1,6 @@
 <script setup>
 import { InputText, DataTable, Column, Button, Select, RadioButton, Divider } from 'primevue';
-import LoadingSpinner from './LoadingSpinner.vue';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner.vue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from 'primevue/usetoast';

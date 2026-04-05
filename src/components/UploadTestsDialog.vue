@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import quizService from '@/api/services/quizService';
 import toastService from './utils/toastService';
-import LoadingSpinner from './LoadingSpinner.vue';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner.vue';
 
 const toast = useToast();
 

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, inject } from 'vue';
 import { Button } from 'primevue';
-import LoadingSpinner from './LoadingSpinner.vue';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner.vue';
 import TakeQuizSettings from './TakeQuizSettings.vue';
 import { formatFromStringTime } from './utils/dateFormat';
 
