@@ -5,6 +5,7 @@ import OwnedQuizzesView from '@/views/OwnedQuizzesView.vue'
 import UserResultsView from '@/views/UserResultsView.vue'
 import QuestionsListView from '../views/QuestionsListView.vue'
 import ChatListPage from '@/views/Messenger/ChatListPage.vue'
+import ChatWindow from '@/views/Messenger/ChatWindow.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -119,6 +120,22 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: ChatListPage
+    },
+    {
+      path: '/chats/:chatId',
+      name: 'chat',
+      component: ChatWindow,
+      // route.params всегда строки — ChatWindow принимает chatId как [Number, String],
+      // отдельного приведения типа не требуется
+      props: (route) => ({
+        chatId: route.params.chatId,
+        chatName: route.query.name ?? ''
+      }),
+      // Отмечаем маршрут как "не переиспользуемый" — при переходе между двумя разными
+      // чатами (например, по пересланному сообщению) компонент должен пересоздаваться,
+      // а не просто получать новые props. useChatMessages/useReadTracking захватывают
+      // chatId один раз при создании и не отслеживают его изменение реактивно.
+      meta: { forceRemount: true }
     }
   ],
 })

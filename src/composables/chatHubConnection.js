@@ -1,6 +1,6 @@
 import * as signalR from '@microsoft/signalr'
 
-const HUB_PATH = '/hubs/chat'
+const HUB_PATH = '/chat-ms/hubs/chat'
 
 /**
  * Создаёт (но не запускает) соединение с ChatHub.

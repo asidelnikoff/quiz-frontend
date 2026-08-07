@@ -1,30 +1,17 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Skeleton from 'primevue/skeleton'
 import ProgressSpinner from 'primevue/progressspinner'
 import Button from 'primevue/button'
-import { useChats } from '../../composables/useChats'
-import { useChatHubConnection } from '../../composables/useChatHubConnection'
-import { debounce } from '../../composables/debounce'
-import { useAuthStore } from '@/stores/auth'
-import ChatListItem from '../../components/ChatListItem.vue'
+import { useChats } from '@/composables/useChats'
+import { useChatHubEvents } from '@/composables/useChatHubEvents'
+import { debounce } from '@/composables/debounce.js'
+import ChatListItem from '@/components/ChatListItem.vue'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL
+const router = useRouter()
 
-// События, которые влияют на список чатов на главном экране:
-// новое сообщение меняет last_message/unread_count/порядок,
-// прочтение (в т.ч. с другого устройства) меняет unread_count.
-const CHAT_LIST_RELEVANT_EVENTS = ['Notify']
-
-const emit = defineEmits(['open-chat'])
-
-const authStore = useAuthStore()
-const getAccessToken = authStore.getToken
 const { items, isLoading, isLoadingMore, error, search, setSearch, load, loadMore, hasMore, refresh } = useChats()
-const { connection, start: startHubConnection } = useChatHubConnection({
-  baseUrl: `${API_BASE}/chat-ms`,
-  getAccessToken
-})
 
 const searchInput = ref('')
 const sentinel = ref(null)
@@ -35,8 +22,12 @@ function onSearchInput(value) {
   setSearch(value)
 }
 
-function openChat(chatId) {
-  emit('open-chat', chatId)
+function openChat(chat) {
+  router.push({
+    name: 'chat',
+    params: { chatId: chat.chat_id },
+    query: chat.name ? { name: chat.name } : {}
+  })
 }
 
 // Простейший вариант синхронизации: любое релевантное WS-событие — заново
@@ -52,7 +43,11 @@ const debouncedRefresh = debounce(() => {
   refresh()
 }, 400)
 
-onMounted(async () => {
+useChatHubEvents({
+  Notify: debouncedRefresh
+})
+
+onMounted(() => {
   load()
 
   observer = new IntersectionObserver(
@@ -64,21 +59,11 @@ onMounted(async () => {
     { rootMargin: '200px' }
   )
   if (sentinel.value) observer.observe(sentinel.value)
-
-  CHAT_LIST_RELEVANT_EVENTS.forEach((eventName) => {
-    connection.on(eventName, debouncedRefresh)
-  })
-  await startHubConnection()
 })
 
 onBeforeUnmount(() => {
   observer?.disconnect()
-
-  CHAT_LIST_RELEVANT_EVENTS.forEach((eventName) => {
-    connection.off(eventName, debouncedRefresh)
-  })
   debouncedRefresh.cancel()
-  // Само соединение останавливается внутри useChatHubConnection (onBeforeUnmount там же)
 })
 </script>
 

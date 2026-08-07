@@ -38,7 +38,7 @@ function unreadLabel(count) {
     type="button"
     class="chat-row"
     :class="{ 'chat-row--unread': chat.unread_count > 0 }"
-    @click="$emit('open', chat.chat_id)"
+    @click="$emit('open', chat)"
   >
     <span class="chat-row__avatar" :style="{ background: avatarColor(chat.chat_id) }">
       {{ initials(chat.name) }}
