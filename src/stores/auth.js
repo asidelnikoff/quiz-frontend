@@ -29,6 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
   //
   async function login(params) {
     const response = await authService.login(params)
+    console.log('login success', response)
     if (response.status === 200) {
       token.value = response.data.access_token;
       localStorage.setItem('token', token.value);

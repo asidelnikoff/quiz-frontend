@@ -25,27 +25,27 @@ const toastService = {
         message = 'Выбранные пользователи уже добавлены в группу'
       }
       // quiz error
-      if (error.response?.data?.error_code === 'quiz_not_exists') {
+      if (errorResponse.response?.data?.error_code === 'quiz_not_exists') {
         message = 'Тест не найден'
       }
-      if (error.response?.data.error_code === 'quiz_in_group') {
+      if (errorResponse.response?.data.error_code === 'quiz_in_group') {
         message = 'Выбранный тест уже добавлен в группу'
       }
       // auth error
       if (
-        error.response?.data?.error_code === 'invalid_password' ||
-        error.response?.data?.error_code === 'user_not_found'
+        errorResponse.response?.data?.error_code === 'invalid_password' ||
+        errorResponse.response?.data?.error_code === 'user_not_found'
       ) {
         message = 'Неверный логин или пароль'
       }
 
       // quiz session error
-      if (error?.response?.data?.error_code === 'session_not_exists') {
+      if (errorResponse?.response?.data?.error_code === 'session_not_exists') {
         message = 'Сессия завершена'
       }
 
       // profile update error
-      if (error.response?.data?.error_code === 'unable_to_change_login') {
+      if (errorResponse.response?.data?.error_code === 'unable_to_change_login') {
         message = 'Невозможно сменить логин'
         message +=
           '\nСледующая смена логина возможна: ' + `${formatDate(error.response.data.details)}`

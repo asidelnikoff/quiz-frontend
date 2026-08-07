@@ -12,6 +12,7 @@ import ResetOnChange from '@/components/ResetOnChange.vue';
 import { useRouter } from 'vue-router';
 import toastService from '@/components/utils/toastService';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner.vue';
+import startChats from '@/api/chatSignalr';
 
 const authStore = useAuthStore()
 const toast = useToast();
@@ -149,6 +150,8 @@ const deleteAccount = async () => {
     await authService.deleteUser();
     router.replace('/login');
 };
+
+startChats();
 </script>
 
 <template>

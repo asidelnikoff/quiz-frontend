@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AvaliableQuizzesView from '@/views/AvaliableQuizzesView.vue'
 import OwnedQuizzesView from '@/views/OwnedQuizzesView.vue'
-import ProfileView from '../views/User/ProfileView.vue'
+// import ProfileView from '../views/User/ProfileView.vue'
 import UserResultsView from '@/views/UserResultsView.vue'
 import QuestionsListView from '../views/QuestionsListView.vue'
+import ChatListPage from '@/views/Messenger/ChatListPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,21 +19,21 @@ const router = createRouter({
       name: 'signup',
       component: () => import('../views/User/SignupView.vue')
     },
-    {
-      path: '/',
-      name: 'home',
-      component: AvaliableQuizzesView,
-    },
+    // {
+    //   path: '/',
+    //   name: 'home',
+    //   component: AvaliableQuizzesView,
+    // },
     {
       path: '/quizzes',
       name: 'quizzes',
       component: OwnedQuizzesView
     },
-    {
-      path: '/profile',
-      name: 'profile',
-      component: ProfileView,
-    },
+    // {
+    //   path: '/profile',
+    //   name: 'profile',
+    //   component: ProfileView,
+    // },
     {
       path: '/results',
       name: 'results',
@@ -113,6 +114,11 @@ const router = createRouter({
       path: '/group/select-quizzes',
       name: 'group-select-quizzes',
       component: () => import('../views/Quiz/SelectQuizView.vue')
+    },
+    {
+      path: '/',
+      name: 'home',
+      component: ChatListPage
     }
   ],
 })
