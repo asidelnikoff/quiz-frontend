@@ -8,6 +8,7 @@
 -->
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import ProgressSpinner from 'primevue/progressspinner'
@@ -22,8 +23,10 @@ const props = defineProps({
   chatName: { type: String, default: '' }
 })
 
-const { chatInfo, messages, isLoading, error, loadInitial, appendIncoming, sendMessage, retrySend } = useChatMessages(props.chatId)
+const { chatInfo, messages, isLoading, error, loadInitial, appendIncoming, sendMessage, retrySend, setIsRead } = useChatMessages(props.chatId)
 const { observeMessageElement } = useReadTracking(props.chatId)
+
+const displayName = computed(() => chatInfo?.value?.name || props.chatName || 'Чат')
 
 const draft = ref('')
 
@@ -37,8 +40,11 @@ const dividerEl = ref(null)
 const firstUnreadIndex = ref(null)
 
 function computeFirstUnreadIndex() {
+  if (firstUnreadIndex.value === -1) {
+    return
+  }
   const idx = messages.value.findIndex((m) => !m.is_sender && !m.is_read)
-  firstUnreadIndex.value = idx === -1 ? null : idx
+  firstUnreadIndex.value = idx
 }
 
 function isNearBottom() {
@@ -65,6 +71,7 @@ function scrollToInitialPosition() {
 // на компоненте отдаёт инстанс компонента, а не элемент.
 function onMessageRowRef(el, message) {
   observeMessageElement(el, message)
+  computeFirstUnreadIndex()
 }
 
 // Предполагаемая форма payload события: тот же набор полей, что и элемент
@@ -73,7 +80,7 @@ function onMessageRowRef(el, message) {
 // поэтому фильтруем на клиенте. Если реальный контракт события отличается —
 // поправить маппинг здесь.
 useChatHubEvents({
-  Notify: (event) => {
+  NotifyNewMessage: (event) => {
     if (String(event.chat_id) !== String(props.chatId)) return
 
     const wasNearBottom = isNearBottom()
@@ -82,6 +89,12 @@ useChatHubEvents({
     if (wasNearBottom) {
       nextTick(scrollToBottom)
     }
+  },
+  NotifyMessagesRead: (event) => {
+    console.log('NotifyMessagesRead', event)
+    if (String(event.chat_id) !== String(props.chatId)) return
+
+    setIsRead(event)
   }
 })
 
@@ -117,7 +130,7 @@ onMounted(open)
   <div class="chat-window">
     <header class="chat-window__header">
       <Button icon="pi pi-arrow-left" text rounded aria-label="Назад" @click="router.back()" />
-      <span class="chat-window__title">{{ chatInfo?.value?.name || 'Чат' }}</span>
+      <span class="chat-window__title">{{ displayName }}</span>
       <span class="chat-window__header-spacer" />
     </header>
 

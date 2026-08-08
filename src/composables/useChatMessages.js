@@ -23,8 +23,8 @@ export function useChatMessages(chatId) {
     error.value = null
     try {
       const response = (await chatService.getMessages(chatId, {
-        beforeLastRead: INITIAL_CONTEXT_BEFORE,
-        afterLastRead: null
+        before_seq_count: INITIAL_CONTEXT_BEFORE,
+        after_seq_count: null
       })).data
       messages.value = sortBySeq(response.messages)
       chatInfo.value = response.chat
@@ -35,25 +35,19 @@ export function useChatMessages(chatId) {
     }
   }
 
-  /**
-   * Добавляет сообщение, пришедшее через WS. Идемпотентно по id —
-   * защита от дублей при реконнекте/повторной доставке события.
-   */
   function appendIncoming(message) {
-    if (messages.value.some((m) => m.id === message.id)) return
-    messages.value = sortBySeq([...messages.value, message])
-  }
-
-  function appendIncoming(message) {
-    if (message.is_sender && message.client_message_id) {
-      const pendingIndex = pendingMessages.value.findIndex(
+    
+    if (message.client_message_id) {
+      const pendingIndex = messages.value.findIndex(
         (m) => m.client_message_id === message.client_message_id
       )
       if (pendingIndex !== -1) {
-        pendingMessages.value.splice(pendingIndex, 1)
+        message.is_sender = true
+        messages.value.splice(pendingIndex, 1)
       }
     }
  
+    console.log('append incoming', message)
     if (messages.value.some((m) => m.id === message.id)) return
     messages.value = sortBySeq([...messages.value, message])
   }
@@ -61,7 +55,7 @@ export function useChatMessages(chatId) {
   function setPendingStatus(clientMessageId, status) {
     // Ищем через реактивный массив (а не через захваченную в замыкании ссылку),
     // иначе мутация может не пройти через реактивный прокси и не обновить UI.
-    const item = pendingMessages.value.find((m) => m.client_message_id === clientMessageId)
+    const item = messages.value.find((m) => m.client_message_id === clientMessageId)
     if (item) item.status = status
   }
  
@@ -70,9 +64,7 @@ export function useChatMessages(chatId) {
     if (!trimmed) return
  
     const clientMessageId = generateClientMessageId()
-    pendingMessages.value = [
-      ...pendingMessages.value,
-      {
+    let message = {
         id: `pending:${clientMessageId}`,
         client_message_id: clientMessageId,
         content: trimmed,
@@ -81,7 +73,14 @@ export function useChatMessages(chatId) {
         is_read: false,
         seq: null,
         status: 'sending'
-      }
+    }
+    // pendingMessages.value = [
+    //   ...pendingMessages.value,
+    //   message
+    // ]
+    messages.value = [
+      ...messages.value,
+      message
     ]
  
     try {
@@ -108,6 +107,10 @@ export function useChatMessages(chatId) {
       .then(() => setPendingStatus(clientMessageId, 'sent'))
       .catch(() => setPendingStatus(clientMessageId, 'failed'))
   }
+
+  function setIsRead(request) {
+    messages.value.filter(m => m.seq <= request.seq).forEach(m => m.is_read = true)
+  }
  
   return {
     messages,
@@ -117,6 +120,7 @@ export function useChatMessages(chatId) {
     loadInitial,
     appendIncoming,
     sendMessage,
-    retrySend
+    retrySend,
+    setIsRead
   }
 }

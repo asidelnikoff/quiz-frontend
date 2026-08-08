@@ -23,6 +23,11 @@ const chatService = {
         const route = apiPrefix + `/chats/${chatId}/messages/new`
         const response = await api.post(route, request, { withCredentials: true })
         return response
+    },
+
+    async postChat(request) {
+        const response = await api.post(apiPrefix + '/chats/new', request, { withCredentials: true });
+        return response;
     }
 }
 

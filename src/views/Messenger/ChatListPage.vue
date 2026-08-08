@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { useDialog } from 'primevue'
 import { useRouter } from 'vue-router'
 import Skeleton from 'primevue/skeleton'
 import ProgressSpinner from 'primevue/progressspinner'
@@ -8,7 +9,10 @@ import { useChats } from '@/composables/useChats'
 import { useChatHubEvents } from '@/composables/useChatHubEvents'
 import { debounce } from '@/composables/debounce.js'
 import ChatListItem from '@/components/ChatListItem.vue'
+import CreateChatDialog from '@/components/CreateChatDialog.vue'
+import { getChatHubConnection } from '@/composables/chatHubClient'
 
+const dialog = useDialog()
 const router = useRouter()
 
 const { items, isLoading, isLoadingMore, error, search, setSearch, load, loadMore, hasMore, refresh } = useChats()
@@ -30,6 +34,38 @@ function openChat(chat) {
   })
 }
 
+function openCreateChatDialog() {
+  dialog.open(CreateChatDialog, {
+    props: {
+      header: 'Новый чат',
+      modal: true,
+      style: { width: '420px' },
+      breakpoints: { '575px': '95vw' }
+    },
+    onClose: (options) => {
+      console.log('closing', options)
+      const result = options?.data?.data
+      console.log('result closing', result)
+      if (!result) return // отмена или ошибка при создании — ничего не делаем
+ 
+      // Контракт ответа POST /chats/new не описывает тело (в примере только код
+      // 201/201 без образца JSON) — обрабатываем оба варианта: если бэкенд всё же
+      // вернул chat_id, сразу переходим в новый чат; если нет — просто обновляем
+      // список, новый чат должен появиться сам (WS-событие/следующий refresh).
+      if (result.id) {
+        router.push({
+          name: 'chat',
+          params: { chatId: result.id },
+          query: result.name ? { name: result.name } : {}
+        })
+      } else {
+        refresh()
+      }
+    }
+  })
+}
+
+
 // Простейший вариант синхронизации: любое релевантное WS-событие — заново
 // запрашиваем список с бэкенда (первую страницу, как при обычном refresh).
 // debounce нужен, чтобы пачка сообщений, пришедших почти одновременно
@@ -44,7 +80,13 @@ const debouncedRefresh = debounce(() => {
 }, 400)
 
 useChatHubEvents({
-  Notify: debouncedRefresh
+  NotifyNewChat: (event) => {
+    console.log('invoking join chat', event.id)
+    const connection = getChatHubConnection()
+    connection.invoke("JoinChat", String(event.id));
+    debouncedRefresh()
+  },
+  NotifyNewMessage: debouncedRefresh
 })
 
 onMounted(() => {
@@ -72,12 +114,14 @@ onBeforeUnmount(() => {
     <header class="chat-list-page__header">
       <span class="chat-list-page__wordmark">Fold</span>
       <Button
-        icon="pi pi-pencil"
+        icon="pi pi-plus"
         rounded
         text
         aria-label="Новый чат"
         class="chat-list-page__compose"
+        @click="openCreateChatDialog"
       />
+
     </header>
 
     <div class="chat-list-page__search">
