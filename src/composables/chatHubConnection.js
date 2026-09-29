@@ -21,7 +21,6 @@ export function createChatHubConnection({ baseUrl, getAccessToken }) {
     .configureLogging(signalR.LogLevel.Warning)
     .build()
     
-    connection.on('Notify', (data) => console.log('Notification from chats', data))
     connection.on('NotifyNewMessage', (data) => console.log('New message from chat', data))
 
   return connection

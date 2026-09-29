@@ -1,16 +1,12 @@
 <script setup>
+import { avatarColorFor } from './utils/avatar'
+import Avatar from './Avatar.vue'
+
 const props = defineProps({
   chat: { type: Object, required: true }
 })
 
 defineEmits(['open'])
-
-// Небольшая курируемая палитра для монограмм — не случайные цвета, а часть общей системы
-const AVATAR_PALETTE = ['#e8593b', '#2f9e8f', '#4a6fa5', '#b5838d', '#8c7851', '#5c6b73']
-
-function avatarColor(chatId) {
-  return AVATAR_PALETTE[chatId % AVATAR_PALETTE.length]
-}
 
 function initials(name) {
   return name
@@ -40,10 +36,10 @@ function unreadLabel(count) {
     :class="{ 'chat-row--unread': chat.unread_count > 0 }"
     @click="$emit('open', chat)"
   >
-    <span class="chat-row__avatar" :style="{ background: avatarColor(chat.chat_id) }">
-      {{ initials(chat.name) }}
+    <div class="chat-row__avatar" :style="{ background: avatarColorFor(chat.chat_id) }">
+      <Avatar :user="{name: chat.name, id: chat.chat_id}"/>
       <span v-if="chat.unread_count > 0" class="chat-row__fold" aria-hidden="true" />
-    </span>
+    </div>
 
     <span class="chat-row__body">
       <span class="chat-row__name">{{ chat.name }}</span>

@@ -12,6 +12,11 @@ const userService = {
         return response;
     },
 
+    async getUsersList(request) {
+        const response = await api.get(apiPrefix + '/users', { params: request, withCredentials: true });
+        return response;
+    },
+
     async createUser(params) {
         const response = await api.post(apiPrefix + '/user/create', params);
         return response;

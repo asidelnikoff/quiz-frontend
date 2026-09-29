@@ -1,20 +1,13 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import DarkModeToggler from './components/DarkModeToggler.vue';
 import { Toast, ConfirmDialog, DynamicDialog } from 'primevue';
-import Sidepanel from './components/Sidepanel/Sidepanel.vue';
-import { sidebarWidth, isVisible } from './components/Sidepanel/state';
 import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner.vue';
-import { isLoading } from './components/LoadingSpinner/state';
+import { isLoading } from './components/LoadingSpinner/state.js';
 </script>
 
 <template>
-  <Sidepanel v-if="isVisible" />
-  <div :style="{ 'margin-left': sidebarWidth }">
+  <div>
     <RouterView />
-  </div>
-  <div style="position: fixed; bottom: 2%; right: 1%;">
-    <DarkModeToggler />
   </div>
   <Toast />
   <ConfirmDialog />

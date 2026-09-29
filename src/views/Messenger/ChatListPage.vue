@@ -11,6 +11,9 @@ import { debounce } from '@/composables/debounce.js'
 import ChatListItem from '@/components/ChatListItem.vue'
 import CreateChatDialog from '@/components/CreateChatDialog.vue'
 import { getChatHubConnection } from '@/composables/chatHubClient'
+import { showSidebar } from '@/components/Sidepanel/state'
+
+showSidebar()
 
 const dialog = useDialog()
 const router = useRouter()
@@ -31,6 +34,16 @@ function openChat(chat) {
     name: 'chat',
     params: { chatId: chat.chat_id },
     query: chat.name ? { name: chat.name } : {}
+  })
+}
+function openProfile() {
+  router.push({
+    name: 'profile'
+  })
+}
+function logout() {
+  router.replace({
+    name: 'login'
   })
 }
 
@@ -112,7 +125,17 @@ onBeforeUnmount(() => {
 <template>
   <div class="chat-list-page">
     <header class="chat-list-page__header">
-      <span class="chat-list-page__wordmark">Fold</span>
+      <div>
+        <Button
+          icon="pi pi-user"
+          rounded
+          outlined 
+          aria-label="Профиль"
+          class="chat-list-page__compose"
+          @click="openProfile"
+        />
+        <span class="chat-list-page__wordmark">Мои чаты</span>
+      </div>
       <Button
         icon="pi pi-plus"
         rounded
@@ -193,8 +216,7 @@ onBeforeUnmount(() => {
 .chat-list-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-width: 480px;
+  height: 90vh;
   margin: 0 auto;
   background: var(--fold-paper);
 }
@@ -212,6 +234,7 @@ onBeforeUnmount(() => {
   font-style: italic;
   font-weight: 500;
   font-size: 26px;
+  padding-left: 10px;
   color: var(--fold-ink);
 }
 

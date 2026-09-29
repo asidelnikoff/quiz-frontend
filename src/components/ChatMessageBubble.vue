@@ -67,15 +67,14 @@ defineEmits(['retry'])
 }
 
 .message-bubble--incoming .message-bubble__content {
-  background: var(--fold-surface);
+  background: var(--fold-surface-2);
   border: 1px solid var(--fold-border);
   color: var(--fold-ink);
   border-bottom-left-radius: 2px;
 }
 
 .message-bubble--own .message-bubble__content {
-  background: var(--fold-ink);
-  color: #fff;
+  background: var(--fold-bubble-own);
   border-bottom-right-radius: 2px;
 }
 

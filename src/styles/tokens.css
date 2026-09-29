@@ -8,14 +8,17 @@
 :root {
   /* Цвет */
   --fold-ink: #1b2130;        /* основной текст, wordmark */
-  --fold-paper: #f1f2f5;      /* фон страницы */
+  --fold-paper: #f5f6fa;      /* фон страницы */
   --fold-surface: #ffffff;    /* карточки/строки */
   --fold-surface-hover: #f7f8fa;
   --fold-coral: #e8593b;      /* акцент: непрочитанное, активные состояния */
   --fold-coral-tint: #fdece7;
   --fold-teal: #2f9e8f;       /* акцент: прочитано/доставлено */
+  --fold-teal-tint: #e6f4f2;
   --fold-muted: #6b7280;      /* вторичный текст */
   --fold-border: #e3e5ea;
+  --fold-surface-2: #f5f7fc;
+  --fold-bubble-own: #bedbf7;
 
   /* Типографика */
   --font-display: 'Fraunces', Georgia, serif;
@@ -28,6 +31,33 @@
 
   /* Тени */
   --fold-shadow-row: 0 1px 2px rgba(27, 33, 48, 0.04);
+
+  /* Плавный переход при смене темы — только для цветовых свойств,
+     чтобы переключение не выглядело резким морганием */
+  color-scheme: light;
+}
+
+/* Тёмная тема — класс на <html>, проставляется useDark() из @vueuse/core
+   (src/composables/useTheme.js). Палитра не инверсия 1:1: фон и поверхности
+   получили собственные тёмные оттенки (не просто "чёрный"), акценты чуть
+   светлее/ярче для читаемости на тёмном фоне, а не буквально те же hex. */
+.dark {
+  --fold-ink: #eef0f4;
+  --fold-paper: #14171f;
+  --fold-surface: #1c212c;
+  --fold-surface-hover: #242a37;
+  --fold-coral: #ff7a5c;
+  --fold-coral-tint: #3a231d;
+  --fold-teal: #4dc3b2;
+  --fold-teal-tint: #17322d;
+  --fold-muted: #8a91a3;
+  --fold-border: #2c3241;
+  --fold-bubble-own: #405380;
+  --fold-surface-2:#434a59;
+
+  --fold-shadow-row: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+  color-scheme: dark;
 }
 
 * {
@@ -39,4 +69,5 @@ body {
   background: var(--fold-paper);
   font-family: var(--font-body);
   color: var(--fold-ink);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
